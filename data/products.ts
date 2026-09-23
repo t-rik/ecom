@@ -80,7 +80,6 @@ export const PRODUCTS: Product[] = [
       "/images/vacuum/vacuum-2.jpg",
       "/images/vacuum/vacuum-3.jpg",
       "/images/vacuum/vacuum-4.jpg",
-      "/images/vacuum/vacuum-5.jpg",
       "/images/vacuum/vacuum-6.jpg",
     ],
     features: [
