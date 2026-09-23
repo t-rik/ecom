@@ -2,7 +2,7 @@
 
 import { Product } from "@/data/products";
 import ImageGallery from "./ImageGallery";
-import { Star, ShoppingCart, CheckCircle, Flame, ArrowDown } from "lucide-react";
+import { ShoppingCart, CheckCircle, Flame, ArrowDown } from "lucide-react";
 import { trackInitiateCheckout } from "@/lib/tracking";
 
 interface HeroSectionProps {
@@ -58,23 +58,9 @@ export default function HeroSection({ product }: HeroSectionProps) {
             </div>
 
             {/* Product Title */}
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight mb-2">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight mb-3">
               {product.title}
             </h1>
-
-            {/* Social Proof Badge */}
-            <div className="flex items-center gap-2 mb-3 text-sm">
-              <div className="flex items-center text-amber-400">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-amber-400" />
-                ))}
-              </div>
-              <span className="font-bold text-gray-900">4.9/5</span>
-              <span className="text-gray-400">|</span>
-              <span className="text-gray-600 text-xs sm:text-sm font-medium">
-                ⭐️ أكثر من {product.reviewCount.toLocaleString("ar-MA")} زبون راضٍ في المغرب
-              </span>
-            </div>
 
             {/* Subtitle / Value proposition */}
             <p className="text-gray-700 text-xs sm:text-sm leading-relaxed mb-4 bg-gray-50/90 p-3 rounded-xl border border-gray-100">
