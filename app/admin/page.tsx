@@ -141,6 +141,12 @@ export default function AdminDashboardPage() {
         body: JSON.stringify({ id, status: newStatus }),
       });
 
+      if (res.status === 401) {
+        showToast("Session expirée. Redirection vers la page de connexion...", "error");
+        setTimeout(() => router.push("/admin/login"), 1200);
+        return;
+      }
+
       const data = await res.json();
       if (res.ok && data.success) {
         setOrders((prev) =>
@@ -153,9 +159,9 @@ export default function AdminDashboardPage() {
       } else {
         showToast(data.message || "Impossible de mettre à jour le statut.", "error");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error updating status:", err);
-      showToast("Erreur de connexion au serveur.", "error");
+      showToast(err?.message || "Erreur de connexion au serveur.", "error");
     } finally {
       setUpdatingId(null);
     }
@@ -170,17 +176,25 @@ export default function AdminDashboardPage() {
         body: JSON.stringify({ id, notes: notesText }),
       });
 
+      if (res.status === 401) {
+        showToast("Session expirée. Redirection...", "error");
+        setTimeout(() => router.push("/admin/login"), 1200);
+        return;
+      }
+
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         setOrders((prev) =>
           prev.map((o) => (o.id === id ? { ...o, notes: notesText } : o))
         );
         setEditingNotesId(null);
-        showToast("Note enregistrée.");
+        showToast("✅ Note enregistrée.");
+      } else {
+        showToast(data.message || "Erreur lors de la sauvegarde de la note.", "error");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error saving notes:", err);
-      showToast("Erreur lors de la sauvegarde de la note.", "error");
+      showToast(err?.message || "Erreur lors de la sauvegarde de la note.", "error");
     } finally {
       setUpdatingId(null);
     }

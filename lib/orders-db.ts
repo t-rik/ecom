@@ -273,6 +273,7 @@ export async function updateOrder(
 ): Promise<OrderRecord | null> {
   const now = new Date().toISOString();
   const supabase = getSupabaseClient();
+  let updatedRecord: OrderRecord | null = null;
 
   if (supabase) {
     try {
@@ -285,26 +286,10 @@ export async function updateOrder(
         .update(payload)
         .eq("id", id)
         .select()
-        .single();
+        .maybeSingle();
 
       if (!error && data) {
-        // Also sync local store in background
-        try {
-          ensureStoreExists();
-          const raw = fs.readFileSync(STORE_PATH, "utf-8");
-          const localOrders: OrderRecord[] = JSON.parse(raw);
-          const idx = localOrders.findIndex((o) => o.id === id);
-          if (idx !== -1) {
-            localOrders[idx] = {
-              ...localOrders[idx],
-              ...updates,
-              updatedAt: now,
-            };
-            fs.writeFileSync(STORE_PATH, JSON.stringify(localOrders, null, 2), "utf-8");
-          }
-        } catch {}
-
-        return {
+        updatedRecord = {
           id: data.id,
           fullName: data.full_name,
           phone: data.phone,
@@ -321,32 +306,40 @@ export async function updateOrder(
           createdAt: data.created_at,
           updatedAt: data.updated_at,
         };
-      } else {
-        console.error("[Orders DB] Supabase update error:", error);
+      } else if (error) {
+        console.error("[Orders DB] Supabase update error:", error.message, error.details);
       }
-    } catch (err) {
-      console.error("[Orders DB] Failed to update in Supabase:", err);
+    } catch (err: any) {
+      console.error("[Orders DB] Failed to update in Supabase:", err?.message || err);
     }
   }
 
-  ensureStoreExists();
-  const raw = fs.readFileSync(STORE_PATH, "utf-8");
-  const orders: OrderRecord[] = JSON.parse(raw);
-  const index = orders.findIndex((o) => o.id === id);
+  // Synchronize or fallback to local JSON store inside safe try/catch
+  try {
+    ensureStoreExists();
+    const raw = fs.readFileSync(STORE_PATH, "utf-8");
+    const localOrders: OrderRecord[] = JSON.parse(raw);
+    const idx = localOrders.findIndex((o) => o.id === id);
 
-  if (index === -1) {
-    return null;
+    if (idx !== -1) {
+      localOrders[idx] = {
+        ...localOrders[idx],
+        ...updates,
+        updatedAt: now,
+      };
+      fs.writeFileSync(STORE_PATH, JSON.stringify(localOrders, null, 2), "utf-8");
+      if (!updatedRecord) {
+        updatedRecord = localOrders[idx];
+      }
+    } else if (updatedRecord) {
+      localOrders.unshift(updatedRecord);
+      fs.writeFileSync(STORE_PATH, JSON.stringify(localOrders, null, 2), "utf-8");
+    }
+  } catch (fsErr) {
+    console.warn("[Orders DB] Local store sync notice:", fsErr);
   }
 
-  const updated: OrderRecord = {
-    ...orders[index],
-    ...updates,
-    updatedAt: now,
-  };
-
-  orders[index] = updated;
-  fs.writeFileSync(STORE_PATH, JSON.stringify(orders, null, 2), "utf-8");
-  return updated;
+  return updatedRecord;
 }
 
 /**
@@ -354,24 +347,37 @@ export async function updateOrder(
  */
 export async function deleteOrder(id: string): Promise<boolean> {
   const supabase = getSupabaseClient();
+  let deletedFromSupabase = false;
+
   if (supabase) {
     try {
-      await supabase.from("orders").delete().eq("id", id);
+      const { error } = await supabase.from("orders").delete().eq("id", id);
+      if (!error) {
+        deletedFromSupabase = true;
+      } else {
+        console.error("[Orders DB] Failed to delete from Supabase:", error);
+      }
     } catch (err) {
       console.error("[Orders DB] Failed to delete from Supabase:", err);
     }
   }
 
-  ensureStoreExists();
-  const orders = await getAllOrders();
-  const filtered = orders.filter((o) => o.id !== id);
+  let deletedFromLocal = false;
+  try {
+    ensureStoreExists();
+    const raw = fs.readFileSync(STORE_PATH, "utf-8");
+    const orders: OrderRecord[] = JSON.parse(raw);
+    const filtered = orders.filter((o) => o.id !== id);
 
-  if (filtered.length === orders.length) {
-    return false;
+    if (filtered.length !== orders.length) {
+      deletedFromLocal = true;
+      fs.writeFileSync(STORE_PATH, JSON.stringify(filtered, null, 2), "utf-8");
+    }
+  } catch (err) {
+    console.warn("[Orders DB] Local store delete error:", err);
   }
 
-  fs.writeFileSync(STORE_PATH, JSON.stringify(filtered, null, 2), "utf-8");
-  return true;
+  return deletedFromSupabase || deletedFromLocal;
 }
 
 /**

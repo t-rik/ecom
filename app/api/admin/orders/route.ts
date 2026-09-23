@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   if (!checkAuth(req)) {
     return NextResponse.json(
-      { success: false, message: "Non autorisé" },
+      { success: false, message: "Session expirée. Veuillez vous reconnecter." },
       { status: 401 }
     );
   }
@@ -83,7 +83,7 @@ export async function PATCH(req: NextRequest) {
 
     if (!updated) {
       return NextResponse.json(
-        { success: false, message: "Commande introuvable" },
+        { success: false, message: `Commande "${id}" introuvable.` },
         { status: 404 }
       );
     }
@@ -96,10 +96,10 @@ export async function PATCH(req: NextRequest) {
       order: updated,
       metrics,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("[Admin Orders API] Update error:", error);
     return NextResponse.json(
-      { success: false, message: "Erreur lors de la mise à jour" },
+      { success: false, message: error?.message || "Erreur interne lors de la mise à jour." },
       { status: 500 }
     );
   }
