@@ -140,7 +140,7 @@ export async function createOrder(
   const supabase = getSupabaseClient();
   if (supabase) {
     try {
-      await supabase.from("orders").insert({
+      const { error: insertErr } = await supabase.from("orders").insert({
         id: newOrder.id,
         full_name: newOrder.fullName,
         phone: newOrder.phone,
@@ -157,16 +157,21 @@ export async function createOrder(
         created_at: newOrder.createdAt,
         updated_at: newOrder.updatedAt,
       });
-    } catch (err) {
-      console.error("[Orders DB] Failed to insert into Supabase:", err);
+
+      if (insertErr) {
+        console.error("[Orders DB] Failed to insert into Supabase:", insertErr.message, insertErr.details);
+      }
+    } catch (err: any) {
+      console.error("[Orders DB] Failed to insert into Supabase:", err?.message || err);
     }
   }
 
   // Local file store persistence / fallback
   try {
     ensureStoreExists();
-    const orders = await getAllOrders();
-    const filtered = orders.filter((o) => o.id !== newOrder.id);
+    const raw = fs.readFileSync(STORE_PATH, "utf-8");
+    const localOrders: OrderRecord[] = raw ? JSON.parse(raw) : [];
+    const filtered = localOrders.filter((o) => o.id !== newOrder.id);
     filtered.unshift(newOrder);
     fs.writeFileSync(STORE_PATH, JSON.stringify(filtered, null, 2), "utf-8");
   } catch (err) {

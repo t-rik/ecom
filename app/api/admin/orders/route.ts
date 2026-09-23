@@ -8,6 +8,9 @@ import {
 } from "@/lib/orders-db";
 import { verifySessionToken, ADMIN_COOKIE_NAME } from "@/lib/admin-auth";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function checkAuth(req: NextRequest): boolean {
   const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
   return verifySessionToken(token);
@@ -47,11 +50,20 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  return NextResponse.json({
-    success: true,
-    orders: filtered,
-    metrics,
-  });
+  return NextResponse.json(
+    {
+      success: true,
+      orders: filtered,
+      metrics,
+    },
+    {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+        Pragma: "no-cache",
+        Expires: "0",
+      },
+    }
+  );
 }
 
 /**

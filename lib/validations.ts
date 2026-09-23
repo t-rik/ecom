@@ -1,19 +1,22 @@
 import { z } from "zod";
 import { CITIES_LIST } from "@/data/products";
 
-// Moroccan phone regex: starts with 06 or 07 followed by exactly 8 digits (total 10 digits)
+// Moroccan phone regex: starts with 05, 06 or 07 followed by exactly 8 digits (total 10 digits)
 // Also handles cleaning whitespace and optional Moroccan country code +212 / 00212
-export const MOROCCAN_PHONE_REGEX = /^(06|07)[0-9]{8}$/;
+export const MOROCCAN_PHONE_REGEX = /^(05|06|07)[0-9]{8}$/;
 
 export function sanitizeMoroccanPhone(rawPhone: string): string {
-  // Remove spaces, hyphens, and non-numeric characters except leading +
-  let cleaned = rawPhone.replace(/[\s\-\(\)]/g, "");
+  if (!rawPhone || typeof rawPhone !== "string") return "";
+  // Remove spaces, hyphens, dots, parentheses, and any non-digit/non-plus character
+  let cleaned = rawPhone.replace(/[\s\-\(\)\.]/g, "");
   if (cleaned.startsWith("+212")) {
     cleaned = "0" + cleaned.slice(4);
   } else if (cleaned.startsWith("00212")) {
     cleaned = "0" + cleaned.slice(5);
-  } else if (cleaned.startsWith("212")) {
+  } else if (cleaned.startsWith("212") && cleaned.length >= 11) {
     cleaned = "0" + cleaned.slice(3);
+  } else if (cleaned.length === 9 && (cleaned.startsWith("5") || cleaned.startsWith("6") || cleaned.startsWith("7"))) {
+    cleaned = "0" + cleaned;
   }
   return cleaned;
 }

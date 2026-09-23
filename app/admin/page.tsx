@@ -100,11 +100,21 @@ export default function AdminDashboardPage() {
 
   const fetchOrders = useCallback(async () => {
     try {
-      const url = activeTab === "ALL"
-        ? `/api/admin/orders${searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ""}`
-        : `/api/admin/orders?status=${activeTab}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ""}`;
+      const base = activeTab === "ALL"
+        ? `/api/admin/orders`
+        : `/api/admin/orders?status=${activeTab}`;
+      const searchPart = searchQuery ? `${base.includes("?") ? "&" : "?"}search=${encodeURIComponent(searchQuery)}` : "";
+      const timestampPart = `${(base + searchPart).includes("?") ? "&" : "?"}_t=${Date.now()}`;
+      const url = base + searchPart + timestampPart;
 
-      const res = await fetch(url);
+      const res = await fetch(url, {
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+        },
+      });
+
       if (res.status === 401) {
         router.push("/admin/login");
         return;
@@ -125,6 +135,11 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     fetchOrders();
+    // Live auto-polling every 10 seconds so new orders appear immediately
+    const timer = setInterval(() => {
+      fetchOrders();
+    }, 10000);
+    return () => clearInterval(timer);
   }, [fetchOrders]);
 
   const handleRefresh = () => {
