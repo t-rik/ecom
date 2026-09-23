@@ -1,0 +1,44 @@
+<svg width="320" height="90" viewBox="0 0 320 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="emeraldGradFull" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="60%" stop-color="#00a650" />
+      <stop offset="100%" stop-color="#0d5c3a" />
+    </linearGradient>
+    <linearGradient id="goldGradFull" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d97706" />
+      <stop offset="40%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#fbbf24" />
+    </linearGradient>
+  </defs>
+
+  <!-- Icon Section -->
+  <g transform="translate(10, 5)">
+    <rect x="18" y="14" width="14" height="60" rx="7" fill="url(#emeraldGradFull)" />
+    <path
+      d="M 28 14 H 50 C 66 14 74 24 74 38 C 74 52 66 62 50 62 H 28"
+      stroke="url(#emeraldGradFull)"
+      stroke-width="14"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="none"
+    />
+    <path
+      d="M 36 39 L 46 50 L 72 20"
+      stroke="url(#goldGradFull)"
+      stroke-width="10"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="none"
+    />
+  </g>
+
+  <!-- Typography Section -->
+  <g transform="translate(105, 42)">
+    <text font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="28" fill="#0f172a" letter-spacing="-0.5">PRATIKO</text>
+    <text x="135" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="22" fill="#00a650">MAROC</text>
+  </g>
+  <g transform="translate(105, 68)">
+    <text font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="14" fill="#64748b" letter-spacing="0.5">المتجر المغربي الموثوق 🇲🇦</text>
+  </g>
+</svg>

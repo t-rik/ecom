@@ -1,22 +1,15 @@
 import Link from "next/link";
-import { ShieldCheck, PhoneCall, Sparkles } from "lucide-react";
+import { ShieldCheck, PhoneCall } from "lucide-react";
+import Logo from "./Logo";
 
 export default function Footer() {
   return (
     <footer className="w-full bg-gray-900 text-gray-300 py-10 px-4 pb-24 md:pb-10">
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-gray-800 pb-6 text-center sm:text-right">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-green-600 flex items-center justify-center text-white">
-              <Sparkles className="w-4 h-4 text-amber-300" />
-            </div>
-            <div>
-              <span className="text-lg font-black text-white">
-                PRATIKO <span className="text-green-500">MAROC</span>
-              </span>
-              <p className="text-xs text-gray-400">وجهتكم الأولى للتسوق الموثوق بالمغرب 🇲🇦</p>
-            </div>
-          </div>
+          <Link href="/" className="group" aria-label="Pratiko Maroc">
+            <Logo size="md" isDark={true} />
+          </Link>
 
           <div className="flex items-center gap-4 text-xs font-medium">
             <a

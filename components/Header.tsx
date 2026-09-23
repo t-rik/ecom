@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Truck, ShieldCheck, PhoneCall, Sparkles } from "lucide-react";
+import Logo from "./Logo";
 
 export default function Header() {
   return (
@@ -19,18 +20,8 @@ export default function Header() {
       {/* Main Navbar */}
       <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-green-600 to-emerald-800 flex items-center justify-center text-white shadow-md shadow-green-600/20 group-hover:scale-105 transition-transform">
-            <Sparkles className="w-5 h-5 text-amber-300" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xl font-extrabold tracking-tight text-gray-900 group-hover:text-green-700 transition-colors">
-              PRATIKO <span className="text-green-600 text-base font-bold">MAROC</span>
-            </span>
-            <span className="text-[10px] text-gray-400 font-medium -mt-1">
-              المتجر المغربي الموثوق 🇲🇦
-            </span>
-          </div>
+        <Link href="/" className="group" aria-label="Pratiko Maroc Homepage">
+          <Logo size="md" />
         </Link>
 
         {/* Reassurance pills */}

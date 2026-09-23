@@ -11,13 +11,19 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import TrustBadges from "@/components/TrustBadges";
+import Logo from "@/components/Logo";
 
 export default function HomePage() {
   return (
     <div className="w-full min-h-screen bg-slate-50">
       {/* Brand Hero Showcase */}
       <section className="relative overflow-hidden bg-gradient-to-b from-green-800 via-emerald-900 to-gray-900 text-white py-12 px-4 text-center">
-        <div className="max-w-3xl mx-auto space-y-4">
+        <div className="max-w-3xl mx-auto space-y-5 flex flex-col items-center">
+          {/* Centered Brand Emblem */}
+          <div className="bg-white/10 backdrop-blur-md px-5 py-2.5 rounded-2xl border border-white/20 shadow-lg">
+            <Logo size="lg" isDark={true} />
+          </div>
+
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/15 text-xs font-bold text-amber-300">
             <Sparkles className="w-4 h-4 text-amber-300" />
             <span>منتجات عملية وحصرية بجودة مضمونة 🇲🇦</span>
