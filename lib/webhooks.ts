@@ -12,8 +12,8 @@ export interface DispatchedOrderPayload extends OrderInput {
 export async function dispatchOrder(order: DispatchedOrderPayload): Promise<void> {
   const promises: Promise<any>[] = [];
 
-  const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
-  const telegramChatId = process.env.TELEGRAM_CHAT_ID;
+  const telegramToken = process.env.TELEGRAM_BOT_TOKEN?.trim().replace(/^["']|["']$/g, "");
+  const telegramChatId = process.env.TELEGRAM_CHAT_ID?.trim().replace(/^["']|["']$/g, "");
 
   // 1. Dispatch to Telegram Bot if configured
   if (telegramToken && telegramChatId) {
@@ -63,7 +63,7 @@ async function sendTelegramNotification(
 📍 *المدينة:* ${order.city}
 🏠 *العنوان:* ${order.address}
 ⏰ *التاريخ:* ${new Date(order.createdAt).toLocaleString("fr-FR", { timeZone: "Africa/Casablanca" })}
-🖥️ *لوحة التحكم:* [فتح Admin Dashboard](/admin)
+🖥️ *لوحة التحكم:* [فتح Admin Dashboard](https://www.pratiko.ma/admin)
 ━━━━━━━━━━━━━━━━━
   `.trim();
 
