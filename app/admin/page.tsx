@@ -79,10 +79,14 @@ export default function AdminDashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-
-  // Notes editing state
+  const [toastMessage, setToastMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
   const [editingNotesId, setEditingNotesId] = useState<string | null>(null);
   const [notesText, setNotesText] = useState("");
+
+  const showToast = (text: string, type: "success" | "error" = "success") => {
+    setToastMessage({ text, type });
+    setTimeout(() => setToastMessage(null), 4000);
+  };
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -128,16 +132,20 @@ export default function AdminDashboardPage() {
       });
 
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         setOrders((prev) =>
           prev.map((o) => (o.id === id ? { ...o, status: newStatus } : o))
         );
         if (data.metrics) {
           setMetrics(data.metrics);
         }
+        showToast(`✅ Commande ${id} mise à jour : ${STATUS_LABELS[newStatus]?.label || newStatus}`);
+      } else {
+        showToast(data.message || "Impossible de mettre à jour le statut.", "error");
       }
     } catch (err) {
       console.error("Error updating status:", err);
+      showToast("Erreur de connexion au serveur.", "error");
     } finally {
       setUpdatingId(null);
     }
@@ -271,7 +279,19 @@ export default function AdminDashboardPage() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6 relative">
+        {/* Floating Toast Notification */}
+        {toastMessage && (
+          <div
+            className={`fixed top-16 right-4 z-50 px-4 py-3 rounded-2xl shadow-2xl border text-xs font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-3 duration-200 ${
+              toastMessage.type === "success"
+                ? "bg-emerald-950/95 border-emerald-500/50 text-emerald-200"
+                : "bg-red-950/95 border-red-500/50 text-red-200"
+            }`}
+          >
+            <span>{toastMessage.text}</span>
+          </div>
+        )}
         {/* KPI Metrics Grid */}
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {/* Revenue */}
@@ -487,21 +507,28 @@ export default function AdminDashboardPage() {
                     </div>
 
                     {/* Status Changer Dropdown */}
-                    <div className="relative inline-flex items-center">
-                      <select
-                        value={order.status}
-                        disabled={isUpdating}
-                        onChange={(e) => handleStatusChange(order.id, e.target.value as OrderStatus)}
-                        className={`text-xs font-bold px-3 py-1.5 rounded-xl border appearance-none pr-8 cursor-pointer focus:outline-none transition-all ${statusCfg.bg} ${statusCfg.text}`}
-                      >
-                        <option value="NEW" className="bg-slate-900 text-amber-400">🟡 À Confirmer</option>
-                        <option value="CONFIRMED" className="bg-slate-900 text-emerald-400">🟢 Confirmé</option>
-                        <option value="NO_ANSWER" className="bg-slate-900 text-orange-400">📞 Pas de réponse</option>
-                        <option value="SHIPPED" className="bg-slate-900 text-blue-400">🚚 Expédié</option>
-                        <option value="DELIVERED" className="bg-slate-900 text-green-400">✅ Livré & Encaissé</option>
-                        <option value="CANCELLED" className="bg-slate-900 text-red-400">❌ Annulé</option>
-                      </select>
-                      <ChevronDown className="w-3.5 h-3.5 absolute right-2.5 pointer-events-none text-slate-400" />
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-bold text-slate-400">Statut:</span>
+                      <div className="relative inline-flex items-center">
+                        <select
+                          value={order.status}
+                          disabled={isUpdating}
+                          onChange={(e) => handleStatusChange(order.id, e.target.value as OrderStatus)}
+                          className={`text-xs font-bold px-3 py-1.5 rounded-xl border appearance-none pr-8 cursor-pointer focus:outline-none transition-all ${statusCfg.bg} ${statusCfg.text} hover:opacity-90 disabled:opacity-50`}
+                        >
+                          <option value="NEW" className="bg-slate-900 text-amber-400">🟡 À Confirmer</option>
+                          <option value="CONFIRMED" className="bg-slate-900 text-emerald-400">🟢 Confirmé</option>
+                          <option value="NO_ANSWER" className="bg-slate-900 text-orange-400">📞 Pas de réponse</option>
+                          <option value="SHIPPED" className="bg-slate-900 text-blue-400">🚚 Expédié</option>
+                          <option value="DELIVERED" className="bg-slate-900 text-green-400">✅ Livré & Encaissé</option>
+                          <option value="CANCELLED" className="bg-slate-900 text-red-400">❌ Annulé</option>
+                        </select>
+                        {isUpdating ? (
+                          <Loader2 className="w-3.5 h-3.5 absolute right-2.5 animate-spin text-slate-400 pointer-events-none" />
+                        ) : (
+                          <ChevronDown className="w-3.5 h-3.5 absolute right-2.5 pointer-events-none text-slate-400" />
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -539,29 +566,83 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
 
-                    {/* Quick Call & WhatsApp Action Buttons (3 cols) */}
-                    <div className="md:col-span-3 flex flex-row md:flex-col gap-2 justify-end">
-                      {/* Call Button */}
-                      <a
-                        href={`tel:${order.phone}`}
-                        className="flex-1 md:w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm"
-                        title="Appeler le client"
-                      >
-                        <Phone className="w-4 h-4" />
-                        <span>Appeler</span>
-                      </a>
+                    {/* Quick Call, WhatsApp, and 1-Click Status Buttons (3 cols) */}
+                    <div className="md:col-span-3 flex flex-col gap-2 justify-end">
+                      <div className="flex gap-2">
+                        {/* Call Button */}
+                        <a
+                          href={`tel:${order.phone}`}
+                          className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                          title="Appeler le client"
+                        >
+                          <Phone className="w-4 h-4" />
+                          <span>Appeler</span>
+                        </a>
 
-                      {/* WhatsApp Greeting Button */}
-                      <a
-                        href={getWhatsAppGreeting(order)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 md:w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm"
-                        title="Ouvrir WhatsApp avec message de confirmation"
-                      >
-                        <MessageSquare className="w-4 h-4" />
-                        <span>WhatsApp</span>
-                      </a>
+                        {/* WhatsApp Greeting Button */}
+                        <a
+                          href={getWhatsAppGreeting(order)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                          title="Ouvrir WhatsApp avec message de confirmation"
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                          <span>WhatsApp</span>
+                        </a>
+                      </div>
+
+                      {/* 1-Click Status Quick Actions */}
+                      {order.status === "NEW" && (
+                        <div className="flex gap-1.5 w-full">
+                          <button
+                            type="button"
+                            onClick={() => handleStatusChange(order.id, "CONFIRMED")}
+                            disabled={isUpdating}
+                            className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
+                            title="Confirmer la commande en 1 clic"
+                          >
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>✓ Confirmer</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleStatusChange(order.id, "NO_ANSWER")}
+                            disabled={isUpdating}
+                            className="bg-orange-600/30 hover:bg-orange-600 text-orange-300 hover:text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 border border-orange-500/40 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+                            title="Marquer comme pas de réponse"
+                          >
+                            <PhoneOff className="w-3 h-3" />
+                            <span>Pas de réponse</span>
+                          </button>
+                        </div>
+                      )}
+
+                      {order.status === "CONFIRMED" && (
+                        <button
+                          type="button"
+                          onClick={() => handleStatusChange(order.id, "SHIPPED")}
+                          disabled={isUpdating}
+                          className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
+                          title="Marquer comme expédié avec le livreur"
+                        >
+                          <Truck className="w-3.5 h-3.5" />
+                          <span>🚚 Marquer Expédié</span>
+                        </button>
+                      )}
+
+                      {order.status === "SHIPPED" && (
+                        <button
+                          type="button"
+                          onClick={() => handleStatusChange(order.id, "DELIVERED")}
+                          disabled={isUpdating}
+                          className="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
+                          title="Marquer comme livré et encaissé"
+                        >
+                          <PackageCheck className="w-3.5 h-3.5" />
+                          <span>✅ Marquer Livré & Encaissé</span>
+                        </button>
+                      )}
                     </div>
                   </div>
 

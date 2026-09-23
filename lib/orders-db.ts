@@ -280,14 +280,58 @@ export async function updateOrder(
       if (updates.status) payload.status = updates.status;
       if (typeof updates.notes === "string") payload.notes = updates.notes;
 
-      await supabase.from("orders").update(payload).eq("id", id);
+      const { data, error } = await supabase
+        .from("orders")
+        .update(payload)
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (!error && data) {
+        // Also sync local store in background
+        try {
+          ensureStoreExists();
+          const raw = fs.readFileSync(STORE_PATH, "utf-8");
+          const localOrders: OrderRecord[] = JSON.parse(raw);
+          const idx = localOrders.findIndex((o) => o.id === id);
+          if (idx !== -1) {
+            localOrders[idx] = {
+              ...localOrders[idx],
+              ...updates,
+              updatedAt: now,
+            };
+            fs.writeFileSync(STORE_PATH, JSON.stringify(localOrders, null, 2), "utf-8");
+          }
+        } catch {}
+
+        return {
+          id: data.id,
+          fullName: data.full_name,
+          phone: data.phone,
+          city: data.city,
+          address: data.address,
+          productId: data.product_id,
+          productTitle: data.product_title,
+          quantity: data.quantity,
+          unitPrice: data.unit_price,
+          deliveryFee: data.delivery_fee,
+          totalPrice: data.total_price,
+          status: data.status as OrderStatus,
+          notes: data.notes,
+          createdAt: data.created_at,
+          updatedAt: data.updated_at,
+        };
+      } else {
+        console.error("[Orders DB] Supabase update error:", error);
+      }
     } catch (err) {
       console.error("[Orders DB] Failed to update in Supabase:", err);
     }
   }
 
   ensureStoreExists();
-  const orders = await getAllOrders();
+  const raw = fs.readFileSync(STORE_PATH, "utf-8");
+  const orders: OrderRecord[] = JSON.parse(raw);
   const index = orders.findIndex((o) => o.id === id);
 
   if (index === -1) {
