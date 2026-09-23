@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: #00a650;
+    --color-primary-dark: #008f45;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    direction: rtl;
+    text-align: right;
+  }
+}
+
+/* Custom scrollbar hiding */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Smooth pulsing glow for COD buttons */
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(0, 166, 80, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(0, 166, 80, 0.7);
+  }
+}
+
+.animate-cod-glow {
+  animation: glow 2s infinite ease-in-out;
+}

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc" />
+      <stop offset="100%" stop-color="#e2e8f0" />
+    </linearGradient>
+    <linearGradient id="cabinetBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#f1f5f9" />
+    </linearGradient>
+    <linearGradient id="doorTint" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0.25" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-opacity="0.12" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="800" fill="url(#bgGrad)" rx="24" />
+
+  <!-- Floor shadow -->
+  <ellipse cx="400" cy="710" rx="260" ry="24" fill="#94a3b8" opacity="0.35" />
+
+  <!-- Main Cabinet Body -->
+  <g filter="url(#shadow)">
+    <!-- Top & frame -->
+    <rect x="230" y="140" width="340" height="540" rx="16" fill="url(#cabinetBody)" stroke="#cbd5e1" stroke-width="4" />
+    <rect x="226" y="132" width="348" height="24" rx="8" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2" />
+    
+    <!-- 4 Tiers / Shelves with Transparent Magnetic Doors -->
+    <!-- Tier 1 -->
+    <rect x="250" y="170" width="300" height="110" rx="8" fill="url(#doorTint)" stroke="#38bdf8" stroke-width="2.5" />
+    <circle cx="530" cy="225" r="8" fill="#cbd5e1" stroke="#64748b" stroke-width="2" />
+    <path d="M 270 240 Q 340 220 420 235 L 430 250 L 270 250 Z" fill="#64748b" opacity="0.4" />
+    <text x="400" y="235" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#0369a1" font-weight="bold">مقاوم للغبار والأتربة</text>
+
+    <!-- Tier 2 -->
+    <rect x="250" y="295" width="300" height="110" rx="8" fill="url(#doorTint)" stroke="#38bdf8" stroke-width="2.5" />
+    <circle cx="530" cy="350" r="8" fill="#cbd5e1" stroke="#64748b" stroke-width="2" />
+    <path d="M 270 365 Q 340 345 420 360 L 430 375 L 270 375 Z" fill="#0284c7" opacity="0.3" />
+    <text x="400" y="360" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#0369a1" font-weight="bold">أبواب شفافة مغناطيسية</text>
+
+    <!-- Tier 3 -->
+    <rect x="250" y="420" width="300" height="110" rx="8" fill="url(#doorTint)" stroke="#38bdf8" stroke-width="2.5" />
+    <circle cx="530" cy="475" r="8" fill="#cbd5e1" stroke="#64748b" stroke-width="2" />
+    <path d="M 270 490 Q 340 470 420 485 L 430 500 L 270 500 Z" fill="#64748b" opacity="0.4" />
+    <text x="400" y="485" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#0369a1" font-weight="bold">سعة تتسع لـ 12-18 زوج</text>
+
+    <!-- Tier 4 -->
+    <rect x="250" y="545" width="300" height="110" rx="8" fill="url(#doorTint)" stroke="#38bdf8" stroke-width="2.5" />
+    <circle cx="530" cy="600" r="8" fill="#cbd5e1" stroke="#64748b" stroke-width="2" />
+    <path d="M 270 615 Q 340 595 420 610 L 430 625 L 270 625 Z" fill="#0284c7" opacity="0.3" />
+    <text x="400" y="610" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#0369a1" font-weight="bold">سهل الطي والتركيب السريع</text>
+  </g>
+
+  <!-- Highlight Badge -->
+  <g transform="translate(100, 60)">
+    <rect width="180" height="44" rx="22" fill="#16a34a" />
+    <text x="90" y="28" text-anchor="middle" font-family="sans-serif" font-size="18" fill="#ffffff" font-weight="bold">✨ تصميم عصري 2026</text>
+  </g>
+</svg>
