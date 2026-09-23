@@ -1,0 +1,37 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="60%" stop-color="#00a650" />
+      <stop offset="100%" stop-color="#0d5c3a" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d97706" />
+      <stop offset="40%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#fbbf24" />
+    </linearGradient>
+    <filter id="logoShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#00a650" flood-opacity="0.2" />
+    </filter>
+  </defs>
+
+  <g filter="url(#logoShadow)">
+    <rect x="18" y="14" width="16" height="72" rx="8" fill="url(#emeraldGrad)" />
+    <path
+      d="M 30 14 H 56 C 74 14 84 25 84 41 C 84 57 74 68 56 68 H 30"
+      stroke="url(#emeraldGrad)"
+      stroke-width="16"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="none"
+    />
+    <path
+      d="M 40 43 L 52 56 L 82 22"
+      stroke="url(#goldGrad)"
+      stroke-width="12"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="none"
+    />
+  </g>
+</svg>
