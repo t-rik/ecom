@@ -37,44 +37,44 @@ const STATUS_CONFIG: Record<
 > = {
   NEW: {
     label: "À Confirmer",
-    badgeBg: "bg-amber-50",
-    badgeText: "text-amber-800",
-    badgeBorder: "border-amber-200",
+    badgeBg: "bg-amber-500/10",
+    badgeText: "text-amber-300",
+    badgeBorder: "border-amber-500/30",
     icon: Clock,
   },
   CONFIRMED: {
     label: "Confirmé",
-    badgeBg: "bg-emerald-50",
-    badgeText: "text-emerald-800",
-    badgeBorder: "border-emerald-200",
+    badgeBg: "bg-emerald-500/10",
+    badgeText: "text-emerald-300",
+    badgeBorder: "border-emerald-500/30",
     icon: CheckCircle2,
   },
   NO_ANSWER: {
     label: "Pas de réponse",
-    badgeBg: "bg-orange-50",
-    badgeText: "text-orange-800",
-    badgeBorder: "border-orange-200",
+    badgeBg: "bg-orange-500/10",
+    badgeText: "text-orange-300",
+    badgeBorder: "border-orange-500/30",
     icon: PhoneOff,
   },
   SHIPPED: {
     label: "Expédié",
-    badgeBg: "bg-blue-50",
-    badgeText: "text-blue-800",
-    badgeBorder: "border-blue-200",
+    badgeBg: "bg-sky-500/10",
+    badgeText: "text-sky-300",
+    badgeBorder: "border-sky-500/30",
     icon: Truck,
   },
   DELIVERED: {
     label: "Livré & Encaissé",
-    badgeBg: "bg-green-50",
-    badgeText: "text-green-800",
-    badgeBorder: "border-green-200",
+    badgeBg: "bg-emerald-500/15",
+    badgeText: "text-emerald-200",
+    badgeBorder: "border-emerald-500/40",
     icon: PackageCheck,
   },
   CANCELLED: {
     label: "Annulé",
-    badgeBg: "bg-rose-50",
-    badgeText: "text-rose-800",
-    badgeBorder: "border-rose-200",
+    badgeBg: "bg-rose-500/10",
+    badgeText: "text-rose-300",
+    badgeBorder: "border-rose-500/30",
     icon: XCircle,
   },
 };
@@ -237,14 +237,14 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col font-sans">
       {/* Top Floating Toast Notification */}
       {toastMessage && (
         <div
-          className={`fixed top-16 right-5 z-50 px-4 py-3 rounded-2xl shadow-xl border text-xs font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-3 duration-200 ${
+          className={`fixed top-16 right-5 z-50 px-4 py-3 rounded-2xl shadow-2xl border text-xs font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-3 duration-200 ${
             toastMessage.type === "success"
-              ? "bg-slate-900 text-white border-slate-800"
-              : "bg-rose-50 text-rose-800 border-rose-200"
+              ? "bg-slate-900/95 text-white border-emerald-500/40 shadow-emerald-950/40"
+              : "bg-rose-950/95 text-rose-200 border-rose-800/60"
           }`}
         >
           <span>{toastMessage.text}</span>
@@ -252,12 +252,13 @@ export default function AdminDashboardPage() {
       )}
 
       {/* Top Navbar */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200/80 px-4 sm:px-6 py-3 shadow-2xs">
+      <header className="sticky top-0 z-40 bg-[#0a0d14]/90 backdrop-blur-xl border-b border-slate-800/80 px-4 sm:px-6 py-3.5 shadow-xl shadow-black/20">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
           {/* Logo & Portal Badge */}
           <div className="flex items-center gap-3">
-            <Logo size="sm" isDark={false} />
-            <span className="hidden sm:inline-block text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+            <Logo size="sm" isDark={true} />
+            <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/25">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               Admin COD Portal
             </span>
           </div>
@@ -267,15 +268,15 @@ export default function AdminDashboardPage() {
             <Link
               href="/"
               target="_blank"
-              className="hidden md:flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-50 px-3 py-1.5 rounded-xl border border-gray-200 transition-colors shadow-2xs"
+              className="hidden md:flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 hover:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-800 transition-colors shadow-xs"
             >
               <span>Boutique en direct</span>
-              <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+              <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
             </Link>
 
             <a
               href={`/api/admin/export${activeTab !== "ALL" ? `?status=${activeTab}` : ""}`}
-              className="flex items-center gap-1.5 text-xs font-black text-white bg-emerald-600 hover:bg-emerald-700 px-3.5 py-1.5 rounded-xl transition-all shadow-xs cursor-pointer active:scale-95"
+              className="flex items-center gap-1.5 text-xs font-black text-white bg-emerald-600 hover:bg-emerald-500 px-3.5 py-1.5 rounded-xl transition-all shadow-md shadow-emerald-950/50 cursor-pointer active:scale-95"
               title="Exporter pour livreur (Excel / CSV)"
             >
               <Download className="w-3.5 h-3.5" />
@@ -285,8 +286,8 @@ export default function AdminDashboardPage() {
             <button
               type="button"
               onClick={handleRefresh}
-              className={`p-2 text-slate-500 hover:text-slate-800 bg-white hover:bg-slate-50 rounded-xl border border-gray-200 transition-all cursor-pointer shadow-2xs ${
-                isRefreshing ? "animate-spin text-emerald-600" : ""
+              className={`p-2 text-slate-400 hover:text-slate-200 bg-slate-900/80 hover:bg-slate-800 rounded-xl border border-slate-800 transition-all cursor-pointer shadow-xs ${
+                isRefreshing ? "animate-spin text-emerald-400" : ""
               }`}
               title="Actualiser les commandes"
             >
@@ -296,7 +297,7 @@ export default function AdminDashboardPage() {
             <button
               type="button"
               onClick={handleLogout}
-              className="flex items-center gap-1 text-xs font-bold text-rose-700 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-xl border border-rose-200 transition-colors cursor-pointer"
+              className="flex items-center gap-1 text-xs font-bold text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 px-3 py-1.5 rounded-xl border border-rose-500/30 transition-colors cursor-pointer"
               title="Déconnexion"
             >
               <LogOut className="w-3.5 h-3.5" />
@@ -308,73 +309,73 @@ export default function AdminDashboardPage() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
-        {/* KPI Metrics Grid (Shopify-Style Clean Cards) */}
+        {/* KPI Metrics Grid (Linear/Vercel Dark Sleek Cards) */}
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {/* Revenue */}
-          <div className="bg-white border border-gray-200/90 rounded-2xl p-4 sm:p-5 shadow-xs hover:shadow-sm transition-shadow">
-            <div className="flex items-center justify-between text-slate-500 text-xs font-bold mb-2">
+          <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 sm:p-5 shadow-lg shadow-black/20 hover:border-slate-700/80 transition-all backdrop-blur-xs">
+            <div className="flex items-center justify-between text-slate-400 text-xs font-bold mb-2">
               <span>Chiffre d'Affaires COD</span>
-              <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/20">
                 <DollarSign className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-xl sm:text-2xl font-black text-slate-900">
+            <div className="text-xl sm:text-2xl font-black text-white">
               {metrics ? metrics.totalRevenue.toLocaleString("fr-FR") : 0}{" "}
-              <span className="text-xs sm:text-sm font-bold text-emerald-600">DH</span>
+              <span className="text-xs sm:text-sm font-bold text-emerald-400">DH</span>
             </div>
-            <p className="text-[11px] text-slate-400 mt-1">Livrées + Confirmées</p>
+            <p className="text-[11px] text-slate-500 mt-1">Livrées + Confirmées</p>
           </div>
 
           {/* Confirmation Rate */}
-          <div className="bg-white border border-gray-200/90 rounded-2xl p-4 sm:p-5 shadow-xs hover:shadow-sm transition-shadow">
-            <div className="flex items-center justify-between text-slate-500 text-xs font-bold mb-2">
+          <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 sm:p-5 shadow-lg shadow-black/20 hover:border-slate-700/80 transition-all backdrop-blur-xs">
+            <div className="flex items-center justify-between text-slate-400 text-xs font-bold mb-2">
               <span>Taux de Confirmation</span>
-              <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+              <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20">
                 <TrendingUp className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-xl sm:text-2xl font-black text-slate-900">
+            <div className="text-xl sm:text-2xl font-black text-white">
               {metrics ? metrics.confirmationRate : 0}%
             </div>
-            <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden">
+            <div className="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
               <div
-                className="bg-blue-600 h-full rounded-full transition-all"
+                className="bg-blue-500 h-full rounded-full transition-all"
                 style={{ width: `${metrics ? metrics.confirmationRate : 0}%` }}
               />
             </div>
           </div>
 
           {/* Pending Calls / Speed to Lead */}
-          <div className="bg-white border border-amber-200/80 rounded-2xl p-4 sm:p-5 shadow-xs hover:shadow-sm transition-shadow relative overflow-hidden bg-gradient-to-br from-white to-amber-50/30">
-            <div className="flex items-center justify-between text-slate-600 text-xs font-bold mb-2">
+          <div className="bg-gradient-to-br from-slate-900/80 to-amber-950/20 border border-amber-500/30 rounded-2xl p-4 sm:p-5 shadow-lg shadow-black/20 hover:border-amber-500/50 transition-all relative overflow-hidden backdrop-blur-xs">
+            <div className="flex items-center justify-between text-amber-300 text-xs font-bold mb-2">
               <span>À Confirmer (Urgents)</span>
-              <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700 animate-pulse">
+              <div className="w-8 h-8 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 border border-amber-500/40 animate-pulse">
                 <AlertCircle className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-xl sm:text-2xl font-black text-amber-600 flex items-center gap-2">
+            <div className="text-xl sm:text-2xl font-black text-amber-400 flex items-center gap-2">
               <span>{metrics ? metrics.pendingCount : 0}</span>
               {(metrics?.pendingCount || 0) > 0 && (
-                <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full border border-amber-200">
+                <span className="text-[10px] font-bold bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/40">
                   Appelez vite !
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-slate-500 mt-1">Appel dans les 15 min recommandé</p>
+            <p className="text-[11px] text-amber-400/70 mt-1">Appel dans les 15 min recommandé</p>
           </div>
 
           {/* Total Orders */}
-          <div className="bg-white border border-gray-200/90 rounded-2xl p-4 sm:p-5 shadow-xs hover:shadow-sm transition-shadow">
-            <div className="flex items-center justify-between text-slate-500 text-xs font-bold mb-2">
+          <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 sm:p-5 shadow-lg shadow-black/20 hover:border-slate-700/80 transition-all backdrop-blur-xs">
+            <div className="flex items-center justify-between text-slate-400 text-xs font-bold mb-2">
               <span>Total Commandes</span>
-              <div className="w-8 h-8 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
+              <div className="w-8 h-8 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 border border-purple-500/20">
                 <Package className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-xl sm:text-2xl font-black text-slate-900">
+            <div className="text-xl sm:text-2xl font-black text-white">
               {metrics ? metrics.totalOrders : 0}
             </div>
-            <p className="text-[11px] text-slate-400 mt-1">
+            <p className="text-[11px] text-slate-500 mt-1">
               {metrics ? metrics.deliveredCount : 0} livrées avec succès
             </p>
           </div>
@@ -384,13 +385,13 @@ export default function AdminDashboardPage() {
         <div className="space-y-3">
           {/* Search bar */}
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Rechercher par nom client, numéro de téléphone (06...), ville ou ID..."
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200/90 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent shadow-2xs"
+              className="w-full pl-10 pr-4 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 shadow-inner transition-all"
             />
           </div>
 
@@ -401,8 +402,8 @@ export default function AdminDashboardPage() {
               onClick={() => setActiveTab("ALL")}
               className={`px-3.5 py-1.5 rounded-xl border transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === "ALL"
-                  ? "bg-slate-900 text-white border-slate-900 shadow-xs"
-                  : "bg-white text-slate-600 border-gray-200 hover:bg-slate-50 hover:text-slate-900"
+                  ? "bg-slate-800 text-white border-slate-600 shadow-md"
+                  : "bg-slate-900/60 text-slate-400 border-slate-800/80 hover:bg-slate-800/40 hover:text-slate-200"
               }`}
             >
               Toutes ({metrics?.totalOrders || 0})
@@ -413,8 +414,8 @@ export default function AdminDashboardPage() {
               onClick={() => setActiveTab("NEW")}
               className={`px-3.5 py-1.5 rounded-xl border transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === "NEW"
-                  ? "bg-amber-600 text-white border-amber-600 shadow-xs"
-                  : "bg-white text-amber-800 border-gray-200 hover:border-amber-300 hover:bg-amber-50/50"
+                  ? "bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-md"
+                  : "bg-slate-900/60 text-slate-400 border-slate-800/80 hover:border-amber-500/30 hover:text-amber-300"
               }`}
             >
               🟡 À Confirmer ({metrics?.pendingCount || 0})
@@ -425,8 +426,8 @@ export default function AdminDashboardPage() {
               onClick={() => setActiveTab("CONFIRMED")}
               className={`px-3.5 py-1.5 rounded-xl border transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === "CONFIRMED"
-                  ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
-                  : "bg-white text-emerald-800 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/50"
+                  ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-md"
+                  : "bg-slate-900/60 text-slate-400 border-slate-800/80 hover:border-emerald-500/30 hover:text-emerald-300"
               }`}
             >
               🟢 Confirmé ({metrics?.confirmedCount || 0})
@@ -437,8 +438,8 @@ export default function AdminDashboardPage() {
               onClick={() => setActiveTab("NO_ANSWER")}
               className={`px-3.5 py-1.5 rounded-xl border transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === "NO_ANSWER"
-                  ? "bg-orange-600 text-white border-orange-600 shadow-xs"
-                  : "bg-white text-orange-800 border-gray-200 hover:border-orange-300 hover:bg-orange-50/50"
+                  ? "bg-orange-500/20 text-orange-300 border-orange-500/40 shadow-md"
+                  : "bg-slate-900/60 text-slate-400 border-slate-800/80 hover:border-orange-500/30 hover:text-orange-300"
               }`}
             >
               📞 Pas de réponse ({metrics?.noAnswerCount || 0})
@@ -449,8 +450,8 @@ export default function AdminDashboardPage() {
               onClick={() => setActiveTab("SHIPPED")}
               className={`px-3.5 py-1.5 rounded-xl border transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === "SHIPPED"
-                  ? "bg-blue-600 text-white border-blue-600 shadow-xs"
-                  : "bg-white text-blue-800 border-gray-200 hover:border-blue-300 hover:bg-blue-50/50"
+                  ? "bg-sky-500/20 text-sky-300 border-sky-500/40 shadow-md"
+                  : "bg-slate-900/60 text-slate-400 border-slate-800/80 hover:border-sky-500/30 hover:text-sky-300"
               }`}
             >
               🚚 Expédié ({metrics?.shippedCount || 0})
@@ -461,8 +462,8 @@ export default function AdminDashboardPage() {
               onClick={() => setActiveTab("DELIVERED")}
               className={`px-3.5 py-1.5 rounded-xl border transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === "DELIVERED"
-                  ? "bg-green-700 text-white border-green-700 shadow-xs"
-                  : "bg-white text-green-800 border-gray-200 hover:border-green-300 hover:bg-green-50/50"
+                  ? "bg-emerald-600/30 text-emerald-200 border-emerald-500/50 shadow-md"
+                  : "bg-slate-900/60 text-slate-400 border-slate-800/80 hover:border-emerald-500/30 hover:text-emerald-300"
               }`}
             >
               ✅ Livré ({metrics?.deliveredCount || 0})
@@ -473,8 +474,8 @@ export default function AdminDashboardPage() {
               onClick={() => setActiveTab("CANCELLED")}
               className={`px-3.5 py-1.5 rounded-xl border transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === "CANCELLED"
-                  ? "bg-rose-600 text-white border-rose-600 shadow-xs"
-                  : "bg-white text-rose-800 border-gray-200 hover:border-rose-300 hover:bg-rose-50/50"
+                  ? "bg-rose-500/20 text-rose-300 border-rose-500/40 shadow-md"
+                  : "bg-slate-900/60 text-slate-400 border-slate-800/80 hover:border-rose-500/30 hover:text-rose-300"
               }`}
             >
               ❌ Annulé ({metrics?.cancelledCount || 0})
@@ -484,15 +485,15 @@ export default function AdminDashboardPage() {
 
         {/* Orders Listing */}
         {isLoading ? (
-          <div className="py-24 flex flex-col items-center justify-center text-slate-500 gap-2">
-            <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+          <div className="py-24 flex flex-col items-center justify-center text-slate-400 gap-2">
+            <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
             <span className="text-xs font-semibold">Chargement des commandes...</span>
           </div>
         ) : orders.length === 0 ? (
-          <div className="bg-white border border-gray-200/90 rounded-3xl p-12 text-center text-slate-500 space-y-3 shadow-xs">
-            <Package className="w-12 h-12 mx-auto text-slate-300" />
-            <h3 className="text-base font-bold text-slate-900">Aucune commande trouvée</h3>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+          <div className="bg-slate-900/50 border border-slate-800/80 rounded-3xl p-12 text-center text-slate-400 space-y-3 shadow-xl shadow-black/20">
+            <Package className="w-12 h-12 mx-auto text-slate-600" />
+            <h3 className="text-base font-bold text-white">Aucune commande trouvée</h3>
+            <p className="text-xs text-slate-400 max-w-sm mx-auto">
               {searchQuery
                 ? "Aucun résultat ne correspond à votre recherche. Essayez un autre mot-clé."
                 : "Les nouvelles commandes des clients apparaîtront ici en temps réel."}
@@ -507,16 +508,16 @@ export default function AdminDashboardPage() {
               return (
                 <div
                   key={order.id}
-                  className="bg-white border border-gray-200/90 rounded-2xl p-4 sm:p-5 hover:border-gray-300 hover:shadow-xs transition-all space-y-4 shadow-2xs"
+                  className="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-4 sm:p-5 hover:border-slate-700/80 transition-all space-y-4 shadow-xl shadow-black/20 backdrop-blur-xs"
                 >
                   {/* Top Line: ID, Date, and Status Selector */}
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/70 pb-3">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200">
+                      <span className="font-mono text-xs font-bold text-emerald-400 bg-emerald-950/60 px-2.5 py-0.5 rounded-lg border border-emerald-800/60">
                         {order.id}
                       </span>
-                      <span className="text-xs text-slate-500 flex items-center gap-1 font-medium">
-                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                      <span className="text-xs text-slate-400 flex items-center gap-1 font-medium">
+                        <Calendar className="w-3.5 h-3.5 text-slate-500" />
                         {getTimeAgo(order.createdAt)}
                       </span>
                     </div>
@@ -531,15 +532,15 @@ export default function AdminDashboardPage() {
                           onChange={(e) => handleStatusChange(order.id, e.target.value as OrderStatus)}
                           className={`text-xs font-bold px-3 py-1.5 rounded-xl border appearance-none pr-8 cursor-pointer focus:outline-none transition-all ${statusCfg.badgeBg} ${statusCfg.badgeText} ${statusCfg.badgeBorder} hover:opacity-90 disabled:opacity-50`}
                         >
-                          <option value="NEW" className="bg-white text-slate-900">🟡 À Confirmer</option>
-                          <option value="CONFIRMED" className="bg-white text-slate-900">🟢 Confirmé</option>
-                          <option value="NO_ANSWER" className="bg-white text-slate-900">📞 Pas de réponse</option>
-                          <option value="SHIPPED" className="bg-white text-slate-900">🚚 Expédié</option>
-                          <option value="DELIVERED" className="bg-white text-slate-900">✅ Livré & Encaissé</option>
-                          <option value="CANCELLED" className="bg-white text-slate-900">❌ Annulé</option>
+                          <option value="NEW" className="bg-slate-900 text-white">🟡 À Confirmer</option>
+                          <option value="CONFIRMED" className="bg-slate-900 text-white">🟢 Confirmé</option>
+                          <option value="NO_ANSWER" className="bg-slate-900 text-white">📞 Pas de réponse</option>
+                          <option value="SHIPPED" className="bg-slate-900 text-white">🚚 Expédié</option>
+                          <option value="DELIVERED" className="bg-slate-900 text-white">✅ Livré & Encaissé</option>
+                          <option value="CANCELLED" className="bg-slate-900 text-white">❌ Annulé</option>
                         </select>
                         {isUpdating ? (
-                          <Loader2 className="w-3.5 h-3.5 absolute right-2.5 animate-spin text-slate-500 pointer-events-none" />
+                          <Loader2 className="w-3.5 h-3.5 absolute right-2.5 animate-spin text-slate-400 pointer-events-none" />
                         ) : (
                           <ChevronDown className="w-3.5 h-3.5 absolute right-2.5 pointer-events-none text-slate-400" />
                         )}
@@ -551,31 +552,31 @@ export default function AdminDashboardPage() {
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
                     {/* Customer column (5 cols) */}
                     <div className="md:col-span-5 space-y-1.5">
-                      <h4 className="font-bold text-slate-900 text-base leading-tight">
+                      <h4 className="font-bold text-white text-base leading-tight">
                         {order.fullName}
                       </h4>
 
-                      <div className="flex items-center gap-2 text-xs text-slate-700 font-mono font-semibold">
+                      <div className="flex items-center gap-2 text-xs text-slate-300 font-mono font-semibold">
                         <span>📱 {order.phone}</span>
                       </div>
 
-                      <div className="flex items-start gap-1.5 text-xs text-slate-500">
-                        <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                      <div className="flex items-start gap-1.5 text-xs text-slate-400">
+                        <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
                         <span>
-                          <strong className="text-slate-800">{order.city}</strong>: {order.address}
+                          <strong className="text-slate-200">{order.city}</strong>: {order.address}
                         </span>
                       </div>
                     </div>
 
                     {/* Product & Price Column (4 cols) */}
-                    <div className="md:col-span-4 bg-slate-50/80 p-3 rounded-xl border border-gray-100 space-y-1 text-xs">
-                      <div className="text-slate-500 font-medium">Produit :</div>
-                      <div className="font-bold text-slate-800 line-clamp-1">
+                    <div className="md:col-span-4 bg-slate-950/70 p-3.5 rounded-xl border border-slate-800/80 space-y-1 text-xs">
+                      <div className="text-slate-400 font-medium">Produit :</div>
+                      <div className="font-bold text-slate-200 line-clamp-1">
                         {order.productTitle || order.productId}
                       </div>
-                      <div className="flex items-center justify-between pt-1 border-t border-gray-200/60 font-semibold">
-                        <span className="text-slate-500">Quantité: {order.quantity}</span>
-                        <span className="text-emerald-700 font-black text-sm">
+                      <div className="flex items-center justify-between pt-1 border-t border-slate-800 font-semibold">
+                        <span className="text-slate-400">Quantité: {order.quantity}</span>
+                        <span className="text-emerald-400 font-black text-sm">
                           {order.totalPrice} DH
                         </span>
                       </div>
@@ -587,7 +588,7 @@ export default function AdminDashboardPage() {
                         {/* Call Button */}
                         <a
                           href={`tel:${order.phone}`}
-                          className="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                          className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-blue-950/50 cursor-pointer active:scale-95"
                           title="Appeler le client"
                         >
                           <Phone className="w-4 h-4" />
@@ -599,7 +600,7 @@ export default function AdminDashboardPage() {
                           href={getWhatsAppGreeting(order)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex-1 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                          className="flex-1 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-emerald-950/50 cursor-pointer active:scale-95"
                           title="Ouvrir WhatsApp avec message de confirmation"
                         >
                           <MessageSquare className="w-4 h-4" />
@@ -614,7 +615,7 @@ export default function AdminDashboardPage() {
                             type="button"
                             onClick={() => handleStatusChange(order.id, "CONFIRMED")}
                             disabled={isUpdating}
-                            className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
+                            className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 transition-all cursor-pointer shadow-sm active:scale-95 disabled:opacity-50"
                             title="Confirmer la commande en 1 clic"
                           >
                             <CheckCircle2 className="w-3 h-3" />
@@ -624,7 +625,7 @@ export default function AdminDashboardPage() {
                             type="button"
                             onClick={() => handleStatusChange(order.id, "NO_ANSWER")}
                             disabled={isUpdating}
-                            className="bg-orange-50 hover:bg-orange-100 text-orange-800 font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 border border-orange-200 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+                            className="bg-orange-950/40 hover:bg-orange-900/50 text-orange-300 font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 border border-orange-800/50 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
                             title="Marquer comme pas de réponse"
                           >
                             <PhoneOff className="w-3 h-3" />
@@ -638,7 +639,7 @@ export default function AdminDashboardPage() {
                           type="button"
                           onClick={() => handleStatusChange(order.id, "SHIPPED")}
                           disabled={isUpdating}
-                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
+                          className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 transition-all cursor-pointer shadow-sm active:scale-95 disabled:opacity-50"
                           title="Marquer comme expédié avec le livreur"
                         >
                           <Truck className="w-3.5 h-3.5" />
@@ -651,7 +652,7 @@ export default function AdminDashboardPage() {
                           type="button"
                           onClick={() => handleStatusChange(order.id, "DELIVERED")}
                           disabled={isUpdating}
-                          className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
+                          className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 transition-all cursor-pointer shadow-sm active:scale-95 disabled:opacity-50"
                           title="Marquer comme livré et encaissé"
                         >
                           <PackageCheck className="w-3.5 h-3.5" />
@@ -662,7 +663,7 @@ export default function AdminDashboardPage() {
                   </div>
 
                   {/* Bottom Line: Notes & Delete Option */}
-                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 text-xs text-slate-500">
+                  <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-slate-800/70 text-xs text-slate-400">
                     <div className="flex-1">
                       {editingNotesId === order.id ? (
                         <div className="flex items-center gap-2 mt-1">
@@ -671,19 +672,19 @@ export default function AdminDashboardPage() {
                             value={notesText}
                             onChange={(e) => setNotesText(e.target.value)}
                             placeholder="Ex: Rappeler à 18h, Livreur Cathedis..."
-                            className="flex-1 bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                           />
                           <button
                             type="button"
                             onClick={() => handleSaveNotes(order.id)}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer"
+                            className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer"
                           >
                             Sauvegarder
                           </button>
                           <button
                             type="button"
                             onClick={() => setEditingNotesId(null)}
-                            className="text-slate-500 hover:text-slate-800 px-2 py-1 text-xs cursor-pointer"
+                            className="text-slate-400 hover:text-slate-200 px-2 py-1 text-xs cursor-pointer"
                           >
                             Annuler
                           </button>
@@ -694,9 +695,9 @@ export default function AdminDashboardPage() {
                             setEditingNotesId(order.id);
                             setNotesText(order.notes || "");
                           }}
-                          className="flex items-center gap-1.5 cursor-pointer text-slate-500 hover:text-slate-800 group"
+                          className="flex items-center gap-1.5 cursor-pointer text-slate-400 hover:text-slate-200 group"
                         >
-                          <Edit3 className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-600" />
+                          <Edit3 className="w-3.5 h-3.5 text-slate-500 group-hover:text-emerald-400" />
                           <span className="italic">
                             {order.notes ? `Note: "${order.notes}"` : "+ Ajouter une note interne..."}
                           </span>
@@ -707,7 +708,7 @@ export default function AdminDashboardPage() {
                     <button
                       type="button"
                       onClick={() => handleDeleteOrder(order.id)}
-                      className="text-slate-400 hover:text-rose-600 p-1 rounded-md transition-colors cursor-pointer"
+                      className="text-slate-500 hover:text-rose-400 p-1 rounded-md transition-colors cursor-pointer"
                       title="Supprimer la commande"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

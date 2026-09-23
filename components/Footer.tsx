@@ -1,13 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ShieldCheck, PhoneCall } from "lucide-react";
 import Logo from "./Logo";
 import { useLanguage } from "@/context/LanguageContext";
 import { STORE_WHATSAPP_BASE_URL } from "@/lib/constants";
 
 export default function Footer() {
+  const pathname = usePathname();
   const { t } = useLanguage();
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <footer className="w-full bg-gray-900 text-gray-300 py-10 px-4 pb-24 md:pb-10">
