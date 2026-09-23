@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Loader2,
   Sparkles,
+  AlertCircle,
 } from "lucide-react";
 
 interface OrderFormProps {
@@ -84,12 +85,24 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
       errs.city = t("err_city");
     }
 
-    if (!address.trim() || address.trim().length < 5) {
+    if (!address.trim() || address.trim().length < 3) {
       errs.address = t("err_address");
     }
 
     setErrors(errs);
-    return Object.keys(errs).length === 0;
+
+    const errorKeys = Object.keys(errs);
+    if (errorKeys.length > 0) {
+      const firstFieldId = errorKeys[0];
+      const el = document.getElementById(firstFieldId);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.focus();
+      }
+      return false;
+    }
+
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -155,6 +168,12 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
             flatErrors[key] = (msgs as string[])[0];
           }
           setErrors(flatErrors);
+          const firstFieldId = Object.keys(flatErrors)[0];
+          const el = document.getElementById(firstFieldId);
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+            el.focus();
+          }
         } else {
           alert(data.message || "Erreur lors de l'enregistrement de la commande.");
         }
@@ -416,6 +435,14 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
               </span>
             </div>
           </div>
+
+          {/* Validation Notice Banner if errors present */}
+          {Object.keys(errors).length > 0 && (
+            <div className="bg-red-50 border-2 border-red-300 rounded-2xl p-3.5 flex items-center gap-2.5 text-xs font-bold text-red-700 shadow-xs">
+              <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+              <span>{t("err_fill_required")}</span>
+            </div>
+          )}
 
           {/* High-Contrast Big Green Submit Button */}
           <button

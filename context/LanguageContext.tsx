@@ -75,6 +75,7 @@ export const translations: Record<Language, Record<string, string>> = {
     err_phone: "يرجى إدخال رقم هاتف مغربي صحيح يبدأ بـ 06 أو 07 (مثال: 0612345678)",
     err_city: "المرجو اختيار مدينتك",
     err_address: "المرجو إدخال العنوان بالكامل (الحي، رقم الشارع، الإقامة...)",
+    err_fill_required: "المرجو ملء جميع المعلومات (الاسم، الهاتف، والعنوان) بشكل صحيح لإتمام الطلب",
 
     // Sticky Bottom Bar
     sticky_price_label: "السعر الحالي:",
@@ -188,7 +189,8 @@ export const translations: Record<Language, Record<string, string>> = {
     err_fullname: "Veuillez entrer votre nom complet (au moins 3 caractères)",
     err_phone: "Veuillez entrer un numéro marocain valide commençant par 06 ou 07",
     err_city: "Veuillez sélectionner votre ville",
-    err_address: "Veuillez entrer votre adresse complète (au moins 5 caractères)",
+    err_address: "Veuillez entrer votre adresse complète (au moins 3 caractères)",
+    err_fill_required: "Veuillez remplir correctement tous les champs obligatoires (Nom, Téléphone, Adresse)",
 
     // Sticky Bottom Bar
     sticky_price_label: "Prix actuel :",

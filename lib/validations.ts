@@ -38,7 +38,7 @@ export const OrderSchema = z.object({
     }),
   address: z
     .string()
-    .min(5, { message: "المرجو إدخال العنوان بالكامل (الحي، رقم الشارع، الإقامة...)" })
+    .min(3, { message: "المرجو إدخال العنوان (3 أحرف على الأقل)" })
     .max(200, { message: "العنوان طويل جداً" }),
   bundleId: z.string().min(1, { message: "المرجو اختيار العرض المطلوب" }),
   productId: z.string().min(1, { message: "معرف المنتج مطلوب" }),

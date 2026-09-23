@@ -12,9 +12,12 @@ export interface DispatchedOrderPayload extends OrderInput {
 export async function dispatchOrder(order: DispatchedOrderPayload): Promise<void> {
   const promises: Promise<any>[] = [];
 
+  const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
+  const telegramChatId = process.env.TELEGRAM_CHAT_ID;
+
   // 1. Dispatch to Telegram Bot if configured
-  if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
-    promises.push(sendTelegramNotification(order));
+  if (telegramToken && telegramChatId) {
+    promises.push(sendTelegramNotification(order, telegramToken, telegramChatId));
   }
 
   // 2. Dispatch to Google Sheets Webhook (e.g. Google Apps Script / Make / Zapier)
@@ -40,9 +43,11 @@ export async function dispatchOrder(order: DispatchedOrderPayload): Promise<void
   }
 }
 
-async function sendTelegramNotification(order: DispatchedOrderPayload) {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+async function sendTelegramNotification(
+  order: DispatchedOrderPayload,
+  token: string,
+  chatId: string
+) {
 
   const text = `
 🛒 *طلب جديد عبر الدفع عند الاستلام (COD)*
