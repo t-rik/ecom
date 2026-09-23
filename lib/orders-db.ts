@@ -62,95 +62,7 @@ function ensureStoreExists(): void {
   }
 
   if (!fs.existsSync(STORE_PATH)) {
-    const initialOrders: OrderRecord[] = [
-      {
-        id: "PRK-892341",
-        fullName: "محمد العلمي",
-        phone: "0661234567",
-        city: "Casablanca",
-        address: "حي المعاريف، زنقة الزرقطوني عمارة 12 شقة 4",
-        productId: "aspirateur-sans-fil",
-        productTitle: "مكنسة كهربائية لاسلكية محمولة للسيارة والمنزل (قوة 9000Pa)",
-        quantity: 2,
-        unitPrice: 319,
-        deliveryFee: 0,
-        totalPrice: 319,
-        status: "NEW",
-        notes: "زبون جديد، يفضل التوصيل بعد الساعة 17:00",
-        createdAt: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
-        updatedAt: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
-      },
-      {
-        id: "PRK-781492",
-        fullName: "فاطمة الزهراء بنجلون",
-        phone: "0770987654",
-        city: "Rabat",
-        address: "حي أكدال، شارع فال ولد عمير، إقامة النخيل",
-        productId: "aspirateur-sans-fil",
-        productTitle: "مكنسة كهربائية لاسلكية محمولة للسيارة والمنزل (قوة 9000Pa)",
-        quantity: 1,
-        unitPrice: 189,
-        deliveryFee: 35,
-        totalPrice: 224,
-        status: "CONFIRMED",
-        notes: "تم التأكيد هاتفياً، جاهز للشحن",
-        createdAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
-        updatedAt: new Date(Date.now() - 1 * 3600 * 1000).toISOString(),
-      },
-      {
-        id: "PRK-654120",
-        fullName: "Youssef Tazi",
-        phone: "0665432198",
-        city: "Marrakech",
-        address: "Guéliz, Bd Mohammed V, Résidence Al Manar Appt 6",
-        productId: "armoire-chaussures",
-        productTitle: "خزانة أحذية عصرية متعددة الطبقات (سعة 24 حذاء)",
-        quantity: 2,
-        unitPrice: 469,
-        deliveryFee: 0,
-        totalPrice: 469,
-        status: "SHIPPED",
-        notes: "Envoyé avec livreur Cathedis (Track #CTH-9923)",
-        createdAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-        updatedAt: new Date(Date.now() - 18 * 3600 * 1000).toISOString(),
-      },
-      {
-        id: "PRK-541289",
-        fullName: "Karim Mansouri",
-        phone: "0712348765",
-        city: "Tanger",
-        address: "Malabata, Résidence Bay City Bloc B",
-        productId: "aspirateur-sans-fil",
-        productTitle: "مكنسة كهربائية لاسلكية محمولة للسيارة والمنزل (قوة 9000Pa)",
-        quantity: 1,
-        unitPrice: 189,
-        deliveryFee: 35,
-        totalPrice: 224,
-        status: "DELIVERED",
-        notes: "Livré et encaissé en espèces",
-        createdAt: new Date(Date.now() - 48 * 3600 * 1000).toISOString(),
-        updatedAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-      },
-      {
-        id: "PRK-432198",
-        fullName: "أمين الصنهاجي",
-        phone: "0612987654",
-        city: "Fès",
-        address: "طريق عين الشقف، إقامة رياض فاس",
-        productId: "aspirateur-sans-fil",
-        productTitle: "مكنسة كهربائية لاسلكية محمولة للسيارة والمنزل (قوة 9000Pa)",
-        quantity: 1,
-        unitPrice: 189,
-        deliveryFee: 35,
-        totalPrice: 224,
-        status: "NO_ANSWER",
-        notes: "تم الاتصال مرتين بدون رد، إعادة الاتصال بعد الزوال",
-        createdAt: new Date(Date.now() - 5 * 3600 * 1000).toISOString(),
-        updatedAt: new Date(Date.now() - 4 * 3600 * 1000).toISOString(),
-      },
-    ];
-
-    fs.writeFileSync(STORE_PATH, JSON.stringify(initialOrders, null, 2), "utf-8");
+    fs.writeFileSync(STORE_PATH, JSON.stringify([], null, 2), "utf-8");
   }
 }
 
@@ -378,6 +290,29 @@ export async function deleteOrder(id: string): Promise<boolean> {
   }
 
   return deletedFromSupabase || deletedFromLocal;
+}
+
+/**
+ * Clear / empty all orders from database and local storage
+ */
+export async function clearAllOrders(): Promise<boolean> {
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      await supabase.from("orders").delete().neq("id", "___NEVER_MATCH___");
+    } catch (err) {
+      console.error("[Orders DB] Failed to empty Supabase orders:", err);
+    }
+  }
+
+  try {
+    ensureStoreExists();
+    fs.writeFileSync(STORE_PATH, JSON.stringify([], null, 2), "utf-8");
+  } catch (err) {
+    console.error("[Orders DB] Failed to empty local store:", err);
+  }
+
+  return true;
 }
 
 /**
