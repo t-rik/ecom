@@ -31,41 +31,50 @@ import {
   Package,
 } from "lucide-react";
 
-const STATUS_LABELS: Record<OrderStatus, { label: string; bg: string; text: string; icon: any }> = {
+const STATUS_CONFIG: Record<
+  OrderStatus,
+  { label: string; badgeBg: string; badgeText: string; badgeBorder: string; icon: any }
+> = {
   NEW: {
-    label: "À Confirmer (Nouveau)",
-    bg: "bg-amber-500/15 border-amber-500/30",
-    text: "text-amber-400",
+    label: "À Confirmer",
+    badgeBg: "bg-amber-50",
+    badgeText: "text-amber-800",
+    badgeBorder: "border-amber-200",
     icon: Clock,
   },
   CONFIRMED: {
     label: "Confirmé",
-    bg: "bg-emerald-500/15 border-emerald-500/30",
-    text: "text-emerald-400",
+    badgeBg: "bg-emerald-50",
+    badgeText: "text-emerald-800",
+    badgeBorder: "border-emerald-200",
     icon: CheckCircle2,
   },
   NO_ANSWER: {
     label: "Pas de réponse",
-    bg: "bg-orange-500/15 border-orange-500/30",
-    text: "text-orange-400",
+    badgeBg: "bg-orange-50",
+    badgeText: "text-orange-800",
+    badgeBorder: "border-orange-200",
     icon: PhoneOff,
   },
   SHIPPED: {
-    label: "Expédié (En cours)",
-    bg: "bg-blue-500/15 border-blue-500/30",
-    text: "text-blue-400",
+    label: "Expédié",
+    badgeBg: "bg-blue-50",
+    badgeText: "text-blue-800",
+    badgeBorder: "border-blue-200",
     icon: Truck,
   },
   DELIVERED: {
     label: "Livré & Encaissé",
-    bg: "bg-green-500/15 border-green-500/30",
-    text: "text-green-400",
+    badgeBg: "bg-green-50",
+    badgeText: "text-green-800",
+    badgeBorder: "border-green-200",
     icon: PackageCheck,
   },
   CANCELLED: {
     label: "Annulé",
-    bg: "bg-red-500/15 border-red-500/30",
-    text: "text-red-400",
+    badgeBg: "bg-rose-50",
+    badgeText: "text-rose-800",
+    badgeBorder: "border-rose-200",
     icon: XCircle,
   },
 };
@@ -80,6 +89,7 @@ export default function AdminDashboardPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+
   const [editingNotesId, setEditingNotesId] = useState<string | null>(null);
   const [notesText, setNotesText] = useState("");
 
@@ -139,7 +149,7 @@ export default function AdminDashboardPage() {
         if (data.metrics) {
           setMetrics(data.metrics);
         }
-        showToast(`✅ Commande ${id} mise à jour : ${STATUS_LABELS[newStatus]?.label || newStatus}`);
+        showToast(`✅ Commande mise à jour : ${STATUS_CONFIG[newStatus]?.label || newStatus}`);
       } else {
         showToast(data.message || "Impossible de mettre à jour le statut.", "error");
       }
@@ -166,9 +176,11 @@ export default function AdminDashboardPage() {
           prev.map((o) => (o.id === id ? { ...o, notes: notesText } : o))
         );
         setEditingNotesId(null);
+        showToast("Note enregistrée.");
       }
     } catch (err) {
       console.error("Error saving notes:", err);
+      showToast("Erreur lors de la sauvegarde de la note.", "error");
     } finally {
       setUpdatingId(null);
     }
@@ -190,6 +202,7 @@ export default function AdminDashboardPage() {
         if (data.metrics) {
           setMetrics(data.metrics);
         }
+        showToast("Commande supprimée.");
       }
     } catch (err) {
       console.error("Error deleting order:", err);
@@ -224,43 +237,58 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col font-sans">
+      {/* Top Floating Toast Notification */}
+      {toastMessage && (
+        <div
+          className={`fixed top-16 right-5 z-50 px-4 py-3 rounded-2xl shadow-xl border text-xs font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-3 duration-200 ${
+            toastMessage.type === "success"
+              ? "bg-slate-900 text-white border-slate-800"
+              : "bg-rose-50 text-rose-800 border-rose-200"
+          }`}
+        >
+          <span>{toastMessage.text}</span>
+        </div>
+      )}
+
       {/* Top Navbar */}
-      <header className="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200/80 px-4 sm:px-6 py-3 shadow-2xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+          {/* Logo & Portal Badge */}
           <div className="flex items-center gap-3">
-            <Logo size="sm" isDark={true} />
-            <span className="hidden sm:inline-block text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+            <Logo size="sm" isDark={false} />
+            <span className="hidden sm:inline-block text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
               Admin COD Portal
             </span>
           </div>
 
+          {/* Action Buttons */}
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/"
               target="_blank"
-              className="hidden md:flex items-center gap-1.5 text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors"
+              className="hidden md:flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-50 px-3 py-1.5 rounded-xl border border-gray-200 transition-colors shadow-2xs"
             >
-              <span>Voir la boutique</span>
+              <span>Boutique en direct</span>
               <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
             </Link>
 
             <a
               href={`/api/admin/export${activeTab !== "ALL" ? `?status=${activeTab}` : ""}`}
-              className="flex items-center gap-1.5 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-600 px-3 py-1.5 rounded-lg transition-colors shadow-sm"
-              title="Exporter pour livreur"
+              className="flex items-center gap-1.5 text-xs font-black text-white bg-emerald-600 hover:bg-emerald-700 px-3.5 py-1.5 rounded-xl transition-all shadow-xs cursor-pointer active:scale-95"
+              title="Exporter pour livreur (Excel / CSV)"
             >
               <Download className="w-3.5 h-3.5" />
-              <span className="hidden xs:inline">Export CSV (Livreur)</span>
+              <span className="hidden xs:inline">Export Livreur (CSV)</span>
             </a>
 
             <button
               type="button"
               onClick={handleRefresh}
-              className={`p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition-all ${
-                isRefreshing ? "animate-spin text-emerald-400" : ""
+              className={`p-2 text-slate-500 hover:text-slate-800 bg-white hover:bg-slate-50 rounded-xl border border-gray-200 transition-all cursor-pointer shadow-2xs ${
+                isRefreshing ? "animate-spin text-emerald-600" : ""
               }`}
-              title="Actualiser"
+              title="Actualiser les commandes"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
@@ -268,7 +296,7 @@ export default function AdminDashboardPage() {
             <button
               type="button"
               onClick={handleLogout}
-              className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 px-2.5 py-1.5 rounded-lg border border-red-500/20 transition-colors"
+              className="flex items-center gap-1 text-xs font-bold text-rose-700 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-xl border border-rose-200 transition-colors cursor-pointer"
               title="Déconnexion"
             >
               <LogOut className="w-3.5 h-3.5" />
@@ -279,67 +307,55 @@ export default function AdminDashboardPage() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6 relative">
-        {/* Floating Toast Notification */}
-        {toastMessage && (
-          <div
-            className={`fixed top-16 right-4 z-50 px-4 py-3 rounded-2xl shadow-2xl border text-xs font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-3 duration-200 ${
-              toastMessage.type === "success"
-                ? "bg-emerald-950/95 border-emerald-500/50 text-emerald-200"
-                : "bg-red-950/95 border-red-500/50 text-red-200"
-            }`}
-          >
-            <span>{toastMessage.text}</span>
-          </div>
-        )}
-        {/* KPI Metrics Grid */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+        {/* KPI Metrics Grid (Shopify-Style Clean Cards) */}
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {/* Revenue */}
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-5 relative overflow-hidden">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
+          <div className="bg-white border border-gray-200/90 rounded-2xl p-4 sm:p-5 shadow-xs hover:shadow-sm transition-shadow">
+            <div className="flex items-center justify-between text-slate-500 text-xs font-bold mb-2">
               <span>Chiffre d'Affaires COD</span>
-              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
                 <DollarSign className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-xl sm:text-2xl font-black text-white">
+            <div className="text-xl sm:text-2xl font-black text-slate-900">
               {metrics ? metrics.totalRevenue.toLocaleString("fr-FR") : 0}{" "}
-              <span className="text-xs sm:text-sm font-bold text-emerald-400">DH</span>
+              <span className="text-xs sm:text-sm font-bold text-emerald-600">DH</span>
             </div>
-            <p className="text-[11px] text-slate-500 mt-1">Livrées + Confirmées</p>
+            <p className="text-[11px] text-slate-400 mt-1">Livrées + Confirmées</p>
           </div>
 
           {/* Confirmation Rate */}
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-5 relative overflow-hidden">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
+          <div className="bg-white border border-gray-200/90 rounded-2xl p-4 sm:p-5 shadow-xs hover:shadow-sm transition-shadow">
+            <div className="flex items-center justify-between text-slate-500 text-xs font-bold mb-2">
               <span>Taux de Confirmation</span>
-              <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
+              <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
                 <TrendingUp className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-xl sm:text-2xl font-black text-white">
+            <div className="text-xl sm:text-2xl font-black text-slate-900">
               {metrics ? metrics.confirmationRate : 0}%
             </div>
-            <div className="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+            <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden">
               <div
-                className="bg-blue-500 h-full rounded-full transition-all"
+                className="bg-blue-600 h-full rounded-full transition-all"
                 style={{ width: `${metrics ? metrics.confirmationRate : 0}%` }}
               />
             </div>
           </div>
 
           {/* Pending Calls / Speed to Lead */}
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-5 relative overflow-hidden">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
+          <div className="bg-white border border-amber-200/80 rounded-2xl p-4 sm:p-5 shadow-xs hover:shadow-sm transition-shadow relative overflow-hidden bg-gradient-to-br from-white to-amber-50/30">
+            <div className="flex items-center justify-between text-slate-600 text-xs font-bold mb-2">
               <span>À Confirmer (Urgents)</span>
-              <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400 animate-pulse">
+              <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700 animate-pulse">
                 <AlertCircle className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-xl sm:text-2xl font-black text-amber-400 flex items-center gap-2">
+            <div className="text-xl sm:text-2xl font-black text-amber-600 flex items-center gap-2">
               <span>{metrics ? metrics.pendingCount : 0}</span>
               {(metrics?.pendingCount || 0) > 0 && (
-                <span className="text-[10px] font-bold bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/30">
+                <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full border border-amber-200">
                   Appelez vite !
                 </span>
               )}
@@ -348,17 +364,17 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Total Orders */}
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-5 relative overflow-hidden">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
+          <div className="bg-white border border-gray-200/90 rounded-2xl p-4 sm:p-5 shadow-xs hover:shadow-sm transition-shadow">
+            <div className="flex items-center justify-between text-slate-500 text-xs font-bold mb-2">
               <span>Total Commandes</span>
-              <div className="w-8 h-8 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400">
+              <div className="w-8 h-8 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
                 <Package className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-xl sm:text-2xl font-black text-white">
+            <div className="text-xl sm:text-2xl font-black text-slate-900">
               {metrics ? metrics.totalOrders : 0}
             </div>
-            <p className="text-[11px] text-slate-500 mt-1">
+            <p className="text-[11px] text-slate-400 mt-1">
               {metrics ? metrics.deliveredCount : 0} livrées avec succès
             </p>
           </div>
@@ -374,19 +390,19 @@ export default function AdminDashboardPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Rechercher par nom client, numéro de téléphone (06...), ville ou ID..."
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200/90 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent shadow-2xs"
             />
           </div>
 
-          {/* Status Tabs */}
+          {/* Segmented Status Tabs */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-bold scrollbar-none">
             <button
               type="button"
               onClick={() => setActiveTab("ALL")}
-              className={`px-3 py-1.5 rounded-lg border transition-all whitespace-nowrap cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-xl border transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === "ALL"
-                  ? "bg-slate-100 text-slate-950 border-white shadow-xs"
-                  : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white"
+                  ? "bg-slate-900 text-white border-slate-900 shadow-xs"
+                  : "bg-white text-slate-600 border-gray-200 hover:bg-slate-50 hover:text-slate-900"
               }`}
             >
               Toutes ({metrics?.totalOrders || 0})
@@ -395,10 +411,10 @@ export default function AdminDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab("NEW")}
-              className={`px-3 py-1.5 rounded-lg border transition-all whitespace-nowrap cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-xl border transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === "NEW"
-                  ? "bg-amber-500 text-slate-950 border-amber-400 shadow-xs"
-                  : "bg-slate-900 text-amber-400/90 border-slate-800 hover:border-amber-500/40"
+                  ? "bg-amber-600 text-white border-amber-600 shadow-xs"
+                  : "bg-white text-amber-800 border-gray-200 hover:border-amber-300 hover:bg-amber-50/50"
               }`}
             >
               🟡 À Confirmer ({metrics?.pendingCount || 0})
@@ -407,10 +423,10 @@ export default function AdminDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab("CONFIRMED")}
-              className={`px-3 py-1.5 rounded-lg border transition-all whitespace-nowrap cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-xl border transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === "CONFIRMED"
-                  ? "bg-emerald-500 text-slate-950 border-emerald-400 shadow-xs"
-                  : "bg-slate-900 text-emerald-400/90 border-slate-800 hover:border-emerald-500/40"
+                  ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                  : "bg-white text-emerald-800 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/50"
               }`}
             >
               🟢 Confirmé ({metrics?.confirmedCount || 0})
@@ -419,10 +435,10 @@ export default function AdminDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab("NO_ANSWER")}
-              className={`px-3 py-1.5 rounded-lg border transition-all whitespace-nowrap cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-xl border transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === "NO_ANSWER"
-                  ? "bg-orange-500 text-slate-950 border-orange-400 shadow-xs"
-                  : "bg-slate-900 text-orange-400/90 border-slate-800 hover:border-orange-500/40"
+                  ? "bg-orange-600 text-white border-orange-600 shadow-xs"
+                  : "bg-white text-orange-800 border-gray-200 hover:border-orange-300 hover:bg-orange-50/50"
               }`}
             >
               📞 Pas de réponse ({metrics?.noAnswerCount || 0})
@@ -431,10 +447,10 @@ export default function AdminDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab("SHIPPED")}
-              className={`px-3 py-1.5 rounded-lg border transition-all whitespace-nowrap cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-xl border transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === "SHIPPED"
-                  ? "bg-blue-500 text-slate-950 border-blue-400 shadow-xs"
-                  : "bg-slate-900 text-blue-400/90 border-slate-800 hover:border-blue-500/40"
+                  ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                  : "bg-white text-blue-800 border-gray-200 hover:border-blue-300 hover:bg-blue-50/50"
               }`}
             >
               🚚 Expédié ({metrics?.shippedCount || 0})
@@ -443,10 +459,10 @@ export default function AdminDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab("DELIVERED")}
-              className={`px-3 py-1.5 rounded-lg border transition-all whitespace-nowrap cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-xl border transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === "DELIVERED"
-                  ? "bg-green-500 text-slate-950 border-green-400 shadow-xs"
-                  : "bg-slate-900 text-green-400/90 border-slate-800 hover:border-green-500/40"
+                  ? "bg-green-700 text-white border-green-700 shadow-xs"
+                  : "bg-white text-green-800 border-gray-200 hover:border-green-300 hover:bg-green-50/50"
               }`}
             >
               ✅ Livré ({metrics?.deliveredCount || 0})
@@ -455,10 +471,10 @@ export default function AdminDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab("CANCELLED")}
-              className={`px-3 py-1.5 rounded-lg border transition-all whitespace-nowrap cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-xl border transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === "CANCELLED"
-                  ? "bg-red-500 text-slate-950 border-red-400 shadow-xs"
-                  : "bg-slate-900 text-red-400/90 border-slate-800 hover:border-red-500/40"
+                  ? "bg-rose-600 text-white border-rose-600 shadow-xs"
+                  : "bg-white text-rose-800 border-gray-200 hover:border-rose-300 hover:bg-rose-50/50"
               }`}
             >
               ❌ Annulé ({metrics?.cancelledCount || 0})
@@ -468,14 +484,14 @@ export default function AdminDashboardPage() {
 
         {/* Orders Listing */}
         {isLoading ? (
-          <div className="py-20 flex flex-col items-center justify-center text-slate-400 gap-2">
-            <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
-            <span className="text-xs">Chargement des commandes...</span>
+          <div className="py-24 flex flex-col items-center justify-center text-slate-500 gap-2">
+            <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+            <span className="text-xs font-semibold">Chargement des commandes...</span>
           </div>
         ) : orders.length === 0 ? (
-          <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-12 text-center text-slate-400 space-y-3">
-            <Package className="w-12 h-12 mx-auto text-slate-600" />
-            <h3 className="text-base font-bold text-white">Aucune commande trouvée</h3>
+          <div className="bg-white border border-gray-200/90 rounded-3xl p-12 text-center text-slate-500 space-y-3 shadow-xs">
+            <Package className="w-12 h-12 mx-auto text-slate-300" />
+            <h3 className="text-base font-bold text-slate-900">Aucune commande trouvée</h3>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
               {searchQuery
                 ? "Aucun résultat ne correspond à votre recherche. Essayez un autre mot-clé."
@@ -483,48 +499,47 @@ export default function AdminDashboardPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3.5">
             {orders.map((order) => {
-              const statusCfg = STATUS_LABELS[order.status] || STATUS_LABELS.NEW;
-              const StatusIcon = statusCfg.icon;
+              const statusCfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.NEW;
               const isUpdating = updatingId === order.id;
 
               return (
                 <div
                   key={order.id}
-                  className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 hover:border-slate-700 transition-all space-y-4"
+                  className="bg-white border border-gray-200/90 rounded-2xl p-4 sm:p-5 hover:border-gray-300 hover:shadow-xs transition-all space-y-4 shadow-2xs"
                 >
                   {/* Top Line: ID, Date, and Status Selector */}
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-3">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                      <span className="font-mono text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200">
                         {order.id}
                       </span>
-                      <span className="text-xs text-slate-400 flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                      <span className="text-xs text-slate-500 flex items-center gap-1 font-medium">
+                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
                         {getTimeAgo(order.createdAt)}
                       </span>
                     </div>
 
                     {/* Status Changer Dropdown */}
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-bold text-slate-400">Statut:</span>
+                      <span className="text-[11px] font-bold text-slate-400">Statut :</span>
                       <div className="relative inline-flex items-center">
                         <select
                           value={order.status}
                           disabled={isUpdating}
                           onChange={(e) => handleStatusChange(order.id, e.target.value as OrderStatus)}
-                          className={`text-xs font-bold px-3 py-1.5 rounded-xl border appearance-none pr-8 cursor-pointer focus:outline-none transition-all ${statusCfg.bg} ${statusCfg.text} hover:opacity-90 disabled:opacity-50`}
+                          className={`text-xs font-bold px-3 py-1.5 rounded-xl border appearance-none pr-8 cursor-pointer focus:outline-none transition-all ${statusCfg.badgeBg} ${statusCfg.badgeText} ${statusCfg.badgeBorder} hover:opacity-90 disabled:opacity-50`}
                         >
-                          <option value="NEW" className="bg-slate-900 text-amber-400">🟡 À Confirmer</option>
-                          <option value="CONFIRMED" className="bg-slate-900 text-emerald-400">🟢 Confirmé</option>
-                          <option value="NO_ANSWER" className="bg-slate-900 text-orange-400">📞 Pas de réponse</option>
-                          <option value="SHIPPED" className="bg-slate-900 text-blue-400">🚚 Expédié</option>
-                          <option value="DELIVERED" className="bg-slate-900 text-green-400">✅ Livré & Encaissé</option>
-                          <option value="CANCELLED" className="bg-slate-900 text-red-400">❌ Annulé</option>
+                          <option value="NEW" className="bg-white text-slate-900">🟡 À Confirmer</option>
+                          <option value="CONFIRMED" className="bg-white text-slate-900">🟢 Confirmé</option>
+                          <option value="NO_ANSWER" className="bg-white text-slate-900">📞 Pas de réponse</option>
+                          <option value="SHIPPED" className="bg-white text-slate-900">🚚 Expédié</option>
+                          <option value="DELIVERED" className="bg-white text-slate-900">✅ Livré & Encaissé</option>
+                          <option value="CANCELLED" className="bg-white text-slate-900">❌ Annulé</option>
                         </select>
                         {isUpdating ? (
-                          <Loader2 className="w-3.5 h-3.5 absolute right-2.5 animate-spin text-slate-400 pointer-events-none" />
+                          <Loader2 className="w-3.5 h-3.5 absolute right-2.5 animate-spin text-slate-500 pointer-events-none" />
                         ) : (
                           <ChevronDown className="w-3.5 h-3.5 absolute right-2.5 pointer-events-none text-slate-400" />
                         )}
@@ -536,31 +551,31 @@ export default function AdminDashboardPage() {
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
                     {/* Customer column (5 cols) */}
                     <div className="md:col-span-5 space-y-1.5">
-                      <h4 className="font-bold text-white text-base leading-tight">
+                      <h4 className="font-bold text-slate-900 text-base leading-tight">
                         {order.fullName}
                       </h4>
 
-                      <div className="flex items-center gap-2 text-xs text-slate-300 font-mono">
+                      <div className="flex items-center gap-2 text-xs text-slate-700 font-mono font-semibold">
                         <span>📱 {order.phone}</span>
                       </div>
 
-                      <div className="flex items-start gap-1.5 text-xs text-slate-400">
-                        <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                      <div className="flex items-start gap-1.5 text-xs text-slate-500">
+                        <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
                         <span>
-                          <strong className="text-white">{order.city}</strong>: {order.address}
+                          <strong className="text-slate-800">{order.city}</strong>: {order.address}
                         </span>
                       </div>
                     </div>
 
                     {/* Product & Price Column (4 cols) */}
-                    <div className="md:col-span-4 bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 space-y-1 text-xs">
-                      <div className="text-slate-400">Produit:</div>
-                      <div className="font-bold text-slate-200 line-clamp-1">
+                    <div className="md:col-span-4 bg-slate-50/80 p-3 rounded-xl border border-gray-100 space-y-1 text-xs">
+                      <div className="text-slate-500 font-medium">Produit :</div>
+                      <div className="font-bold text-slate-800 line-clamp-1">
                         {order.productTitle || order.productId}
                       </div>
-                      <div className="flex items-center justify-between pt-1 border-t border-slate-800/60 font-semibold">
-                        <span className="text-slate-400">Quantité: {order.quantity}</span>
-                        <span className="text-emerald-400 font-black text-sm">
+                      <div className="flex items-center justify-between pt-1 border-t border-gray-200/60 font-semibold">
+                        <span className="text-slate-500">Quantité: {order.quantity}</span>
+                        <span className="text-emerald-700 font-black text-sm">
                           {order.totalPrice} DH
                         </span>
                       </div>
@@ -572,7 +587,7 @@ export default function AdminDashboardPage() {
                         {/* Call Button */}
                         <a
                           href={`tel:${order.phone}`}
-                          className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                          className="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs"
                           title="Appeler le client"
                         >
                           <Phone className="w-4 h-4" />
@@ -584,7 +599,7 @@ export default function AdminDashboardPage() {
                           href={getWhatsAppGreeting(order)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex-1 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                          className="flex-1 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs"
                           title="Ouvrir WhatsApp avec message de confirmation"
                         >
                           <MessageSquare className="w-4 h-4" />
@@ -599,7 +614,7 @@ export default function AdminDashboardPage() {
                             type="button"
                             onClick={() => handleStatusChange(order.id, "CONFIRMED")}
                             disabled={isUpdating}
-                            className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
+                            className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
                             title="Confirmer la commande en 1 clic"
                           >
                             <CheckCircle2 className="w-3 h-3" />
@@ -609,7 +624,7 @@ export default function AdminDashboardPage() {
                             type="button"
                             onClick={() => handleStatusChange(order.id, "NO_ANSWER")}
                             disabled={isUpdating}
-                            className="bg-orange-600/30 hover:bg-orange-600 text-orange-300 hover:text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 border border-orange-500/40 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+                            className="bg-orange-50 hover:bg-orange-100 text-orange-800 font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 border border-orange-200 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
                             title="Marquer comme pas de réponse"
                           >
                             <PhoneOff className="w-3 h-3" />
@@ -623,7 +638,7 @@ export default function AdminDashboardPage() {
                           type="button"
                           onClick={() => handleStatusChange(order.id, "SHIPPED")}
                           disabled={isUpdating}
-                          className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
                           title="Marquer comme expédié avec le livreur"
                         >
                           <Truck className="w-3.5 h-3.5" />
@@ -636,7 +651,7 @@ export default function AdminDashboardPage() {
                           type="button"
                           onClick={() => handleStatusChange(order.id, "DELIVERED")}
                           disabled={isUpdating}
-                          className="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
+                          className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
                           title="Marquer comme livré et encaissé"
                         >
                           <PackageCheck className="w-3.5 h-3.5" />
@@ -647,7 +662,7 @@ export default function AdminDashboardPage() {
                   </div>
 
                   {/* Bottom Line: Notes & Delete Option */}
-                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-800/60 text-xs text-slate-400">
+                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 text-xs text-slate-500">
                     <div className="flex-1">
                       {editingNotesId === order.id ? (
                         <div className="flex items-center gap-2 mt-1">
@@ -656,19 +671,19 @@ export default function AdminDashboardPage() {
                             value={notesText}
                             onChange={(e) => setNotesText(e.target.value)}
                             placeholder="Ex: Rappeler à 18h, Livreur Cathedis..."
-                            className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            className="flex-1 bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                           />
                           <button
                             type="button"
                             onClick={() => handleSaveNotes(order.id)}
-                            className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer"
                           >
                             Sauvegarder
                           </button>
                           <button
                             type="button"
                             onClick={() => setEditingNotesId(null)}
-                            className="text-slate-400 hover:text-white px-2 py-1 text-xs"
+                            className="text-slate-500 hover:text-slate-800 px-2 py-1 text-xs cursor-pointer"
                           >
                             Annuler
                           </button>
@@ -679,9 +694,9 @@ export default function AdminDashboardPage() {
                             setEditingNotesId(order.id);
                             setNotesText(order.notes || "");
                           }}
-                          className="flex items-center gap-1.5 cursor-pointer text-slate-400 hover:text-slate-200 group"
+                          className="flex items-center gap-1.5 cursor-pointer text-slate-500 hover:text-slate-800 group"
                         >
-                          <Edit3 className="w-3.5 h-3.5 text-slate-500 group-hover:text-emerald-400" />
+                          <Edit3 className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-600" />
                           <span className="italic">
                             {order.notes ? `Note: "${order.notes}"` : "+ Ajouter une note interne..."}
                           </span>
@@ -692,7 +707,7 @@ export default function AdminDashboardPage() {
                     <button
                       type="button"
                       onClick={() => handleDeleteOrder(order.id)}
-                      className="text-slate-600 hover:text-red-400 p-1 rounded-md transition-colors"
+                      className="text-slate-400 hover:text-rose-600 p-1 rounded-md transition-colors cursor-pointer"
                       title="Supprimer la commande"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
