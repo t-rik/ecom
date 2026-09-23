@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 export type OrderStatus =
   | "NEW" // Nouveau / À confirmer
@@ -41,6 +42,18 @@ export interface OrderMetrics {
 
 const STORE_PATH = path.join(process.cwd(), "data", "orders-store.json");
 
+function getSupabaseClient(): SupabaseClient | null {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (supabaseUrl && supabaseKey) {
+    return createClient(supabaseUrl, supabaseKey);
+  }
+  return null;
+}
+
 // Helper to ensure store file exists
 function ensureStoreExists(): void {
   const dir = path.dirname(STORE_PATH);
@@ -64,7 +77,7 @@ function ensureStoreExists(): void {
         totalPrice: 319,
         status: "NEW",
         notes: "زبون جديد، يفضل التوصيل بعد الساعة 17:00",
-        createdAt: new Date(Date.now() - 15 * 60 * 1000).toISOString(), // 15 mins ago
+        createdAt: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
         updatedAt: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
       },
       {
@@ -81,7 +94,7 @@ function ensureStoreExists(): void {
         totalPrice: 224,
         status: "CONFIRMED",
         notes: "تم التأكيد هاتفياً، جاهز للشحن",
-        createdAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(), // 2 hours ago
+        createdAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
         updatedAt: new Date(Date.now() - 1 * 3600 * 1000).toISOString(),
       },
       {
@@ -98,7 +111,7 @@ function ensureStoreExists(): void {
         totalPrice: 469,
         status: "SHIPPED",
         notes: "Envoyé avec livreur Cathedis (Track #CTH-9923)",
-        createdAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString(), // 1 day ago
+        createdAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
         updatedAt: new Date(Date.now() - 18 * 3600 * 1000).toISOString(),
       },
       {
@@ -115,7 +128,7 @@ function ensureStoreExists(): void {
         totalPrice: 224,
         status: "DELIVERED",
         notes: "Livré et encaissé en espèces",
-        createdAt: new Date(Date.now() - 48 * 3600 * 1000).toISOString(), // 2 days ago
+        createdAt: new Date(Date.now() - 48 * 3600 * 1000).toISOString(),
         updatedAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
       },
       {
@@ -145,6 +158,39 @@ function ensureStoreExists(): void {
  * Retrieve all orders, sorted newest first
  */
 export async function getAllOrders(): Promise<OrderRecord[]> {
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!error && data) {
+        return data.map((row: any) => ({
+          id: row.id,
+          fullName: row.full_name,
+          phone: row.phone,
+          city: row.city,
+          address: row.address,
+          productId: row.product_id,
+          productTitle: row.product_title,
+          quantity: row.quantity,
+          unitPrice: row.unit_price,
+          deliveryFee: row.delivery_fee,
+          totalPrice: row.total_price,
+          status: row.status as OrderStatus,
+          notes: row.notes,
+          createdAt: row.created_at,
+          updatedAt: row.updated_at,
+        }));
+      }
+      console.warn("[Orders DB] Supabase query fallback to file store:", error?.message);
+    } catch (err) {
+      console.warn("[Orders DB] Supabase connection fallback:", err);
+    }
+  }
+
   try {
     ensureStoreExists();
     const raw = fs.readFileSync(STORE_PATH, "utf-8");
@@ -172,9 +218,6 @@ export async function getOrderById(id: string): Promise<OrderRecord | null> {
 export async function createOrder(
   data: Omit<OrderRecord, "status" | "updatedAt"> & { status?: OrderStatus }
 ): Promise<OrderRecord> {
-  ensureStoreExists();
-  const orders = await getAllOrders();
-
   const newOrder: OrderRecord = {
     ...data,
     status: data.status || "NEW",
@@ -182,9 +225,42 @@ export async function createOrder(
     updatedAt: new Date().toISOString(),
   };
 
-  orders.unshift(newOrder);
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      await supabase.from("orders").insert({
+        id: newOrder.id,
+        full_name: newOrder.fullName,
+        phone: newOrder.phone,
+        city: newOrder.city,
+        address: newOrder.address,
+        product_id: newOrder.productId,
+        product_title: newOrder.productTitle,
+        quantity: newOrder.quantity,
+        unit_price: newOrder.unitPrice,
+        delivery_fee: newOrder.deliveryFee,
+        total_price: newOrder.totalPrice,
+        status: newOrder.status,
+        notes: newOrder.notes || null,
+        created_at: newOrder.createdAt,
+        updated_at: newOrder.updatedAt,
+      });
+    } catch (err) {
+      console.error("[Orders DB] Failed to insert into Supabase:", err);
+    }
+  }
 
-  fs.writeFileSync(STORE_PATH, JSON.stringify(orders, null, 2), "utf-8");
+  // Local file store persistence / fallback
+  try {
+    ensureStoreExists();
+    const orders = await getAllOrders();
+    const filtered = orders.filter((o) => o.id !== newOrder.id);
+    filtered.unshift(newOrder);
+    fs.writeFileSync(STORE_PATH, JSON.stringify(filtered, null, 2), "utf-8");
+  } catch (err) {
+    console.warn("[Orders DB] Local store sync notice:", err);
+  }
+
   return newOrder;
 }
 
@@ -195,6 +271,21 @@ export async function updateOrder(
   id: string,
   updates: Partial<Pick<OrderRecord, "status" | "notes">>
 ): Promise<OrderRecord | null> {
+  const now = new Date().toISOString();
+  const supabase = getSupabaseClient();
+
+  if (supabase) {
+    try {
+      const payload: any = { updated_at: now };
+      if (updates.status) payload.status = updates.status;
+      if (typeof updates.notes === "string") payload.notes = updates.notes;
+
+      await supabase.from("orders").update(payload).eq("id", id);
+    } catch (err) {
+      console.error("[Orders DB] Failed to update in Supabase:", err);
+    }
+  }
+
   ensureStoreExists();
   const orders = await getAllOrders();
   const index = orders.findIndex((o) => o.id === id);
@@ -206,7 +297,7 @@ export async function updateOrder(
   const updated: OrderRecord = {
     ...orders[index],
     ...updates,
-    updatedAt: new Date().toISOString(),
+    updatedAt: now,
   };
 
   orders[index] = updated;
@@ -218,6 +309,15 @@ export async function updateOrder(
  * Delete an order (e.g. for testing / spam entries)
  */
 export async function deleteOrder(id: string): Promise<boolean> {
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      await supabase.from("orders").delete().eq("id", id);
+    } catch (err) {
+      console.error("[Orders DB] Failed to delete from Supabase:", err);
+    }
+  }
+
   ensureStoreExists();
   const orders = await getAllOrders();
   const filtered = orders.filter((o) => o.id !== id);
@@ -245,7 +345,6 @@ export function calculateMetrics(orders: OrderRecord[]): OrderMetrics {
   let noAnswerCount = 0;
 
   for (const order of orders) {
-    // Only count delivered/confirmed/shipped in valid revenue or active pipeline
     if (order.status === "DELIVERED" || order.status === "CONFIRMED" || order.status === "SHIPPED") {
       totalRevenue += order.totalPrice;
     }
@@ -272,7 +371,6 @@ export function calculateMetrics(orders: OrderRecord[]): OrderMetrics {
     }
   }
 
-  // Confirmation rate: (Confirmed + Shipped + Delivered) / (Total - Pending)
   const processedOrders = totalOrders - pendingCount;
   const successfulConfirmations = confirmedCount + shippedCount + deliveredCount;
   const confirmationRate =
