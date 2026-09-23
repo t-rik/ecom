@@ -51,10 +51,10 @@ export default function ImageGallery({
   if (!images || images.length === 0) return null;
 
   return (
-    <div className="w-full select-none">
+    <div className="w-full max-w-[420px] mx-auto select-none">
       {/* Main Image Container */}
       <div
-        className="relative w-full aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 shadow-sm"
+        className="relative w-full aspect-square bg-gradient-to-b from-gray-50/80 to-white rounded-2xl overflow-hidden border border-gray-200/80 shadow-sm"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -63,8 +63,9 @@ export default function ImageGallery({
           alt={`${productTitle} - صورة ${selectedIndex + 1}`}
           fill
           priority
-          sizes="(max-width: 768px) 100vw, 600px"
-          className="object-contain p-2 transition-all duration-300"
+          quality={95}
+          sizes="(max-width: 768px) 90vw, 420px"
+          className="object-contain p-3 transition-all duration-300"
         />
 
         {/* Badges Overlay */}

@@ -83,12 +83,13 @@ export default function HomePage() {
                 className="bg-white rounded-3xl overflow-hidden border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col group"
               >
                 {/* Image Container with Badges */}
-                <div className="relative aspect-4/3 w-full bg-gray-50 overflow-hidden">
+                <div className="relative h-56 sm:h-64 w-full bg-gradient-to-b from-gray-50 to-white overflow-hidden flex items-center justify-center border-b border-gray-100">
                   <Image
                     src={prod.images[0]}
                     alt={prod.title}
                     fill
-                    sizes="(max-width: 768px) 100vw, 400px"
+                    quality={95}
+                    sizes="(max-width: 768px) 100vw, 380px"
                     className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute top-3 right-3 flex flex-col gap-1">
