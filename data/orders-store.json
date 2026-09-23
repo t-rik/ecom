@@ -11,9 +11,9 @@
     "unitPrice": 189,
     "deliveryFee": 0,
     "totalPrice": 189,
-    "status": "NEW",
+    "status": "CONFIRMED",
     "createdAt": "2026-09-23T20:47:02.252Z",
-    "updatedAt": "2026-09-23T20:47:02.254Z"
+    "updatedAt": "2026-09-23T20:56:55.200Z"
   },
   {
     "id": "PRK-97952697",

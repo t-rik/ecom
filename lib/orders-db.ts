@@ -42,14 +42,25 @@ export interface OrderMetrics {
 
 const STORE_PATH = path.join(process.cwd(), "data", "orders-store.json");
 
+let supabaseInstance: SupabaseClient | null = null;
+
 function getSupabaseClient(): SupabaseClient | null {
+  if (supabaseInstance) return supabaseInstance;
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey =
     process.env.SUPABASE_SERVICE_ROLE_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (supabaseUrl && supabaseKey) {
-    return createClient(supabaseUrl, supabaseKey);
+    supabaseInstance = createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
+    });
+    return supabaseInstance;
   }
   return null;
 }
@@ -188,6 +199,9 @@ export async function updateOrder(
   id: string,
   updates: Partial<Pick<OrderRecord, "status" | "notes">>
 ): Promise<OrderRecord | null> {
+  const cleanId = String(id || "").trim();
+  if (!cleanId) return null;
+
   const now = new Date().toISOString();
   const supabase = getSupabaseClient();
   let updatedRecord: OrderRecord | null = null;
@@ -198,12 +212,24 @@ export async function updateOrder(
       if (updates.status) payload.status = updates.status;
       if (typeof updates.notes === "string") payload.notes = updates.notes;
 
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from("orders")
         .update(payload)
-        .eq("id", id)
+        .eq("id", cleanId)
         .select()
         .maybeSingle();
+
+      if (!error && !data) {
+        const { data: altData, error: altErr } = await supabase
+          .from("orders")
+          .update(payload)
+          .ilike("id", cleanId)
+          .select()
+          .maybeSingle();
+        if (!altErr && altData) {
+          data = altData;
+        }
+      }
 
       if (!error && data) {
         updatedRecord = {
@@ -224,10 +250,10 @@ export async function updateOrder(
           updatedAt: data.updated_at,
         };
       } else if (error) {
-        console.error("[Orders DB] Supabase update error:", error.message, error.details);
+        console.error(`[Orders DB] Supabase update error for "${cleanId}":`, error.message, error.details);
       }
     } catch (err: any) {
-      console.error("[Orders DB] Failed to update in Supabase:", err?.message || err);
+      console.error(`[Orders DB] Failed to update in Supabase for "${cleanId}":`, err?.message || err);
     }
   }
 
@@ -235,8 +261,8 @@ export async function updateOrder(
   try {
     ensureStoreExists();
     const raw = fs.readFileSync(STORE_PATH, "utf-8");
-    const localOrders: OrderRecord[] = JSON.parse(raw);
-    const idx = localOrders.findIndex((o) => o.id === id);
+    const localOrders: OrderRecord[] = raw ? JSON.parse(raw) : [];
+    const idx = localOrders.findIndex((o) => o.id?.trim().toLowerCase() === cleanId.toLowerCase());
 
     if (idx !== -1) {
       localOrders[idx] = {
@@ -263,19 +289,22 @@ export async function updateOrder(
  * Delete an order (e.g. for testing / spam entries)
  */
 export async function deleteOrder(id: string): Promise<boolean> {
+  const cleanId = String(id || "").trim();
+  if (!cleanId) return false;
+
   const supabase = getSupabaseClient();
   let deletedFromSupabase = false;
 
   if (supabase) {
     try {
-      const { error } = await supabase.from("orders").delete().eq("id", id);
+      const { error } = await supabase.from("orders").delete().ilike("id", cleanId);
       if (!error) {
         deletedFromSupabase = true;
       } else {
-        console.error("[Orders DB] Failed to delete from Supabase:", error);
+        console.error(`[Orders DB] Failed to delete "${cleanId}" from Supabase:`, error);
       }
     } catch (err) {
-      console.error("[Orders DB] Failed to delete from Supabase:", err);
+      console.error(`[Orders DB] Failed to delete "${cleanId}" from Supabase:`, err);
     }
   }
 
@@ -283,8 +312,8 @@ export async function deleteOrder(id: string): Promise<boolean> {
   try {
     ensureStoreExists();
     const raw = fs.readFileSync(STORE_PATH, "utf-8");
-    const orders: OrderRecord[] = JSON.parse(raw);
-    const filtered = orders.filter((o) => o.id !== id);
+    const orders: OrderRecord[] = raw ? JSON.parse(raw) : [];
+    const filtered = orders.filter((o) => o.id?.trim().toLowerCase() !== cleanId.toLowerCase());
 
     if (filtered.length !== orders.length) {
       deletedFromLocal = true;
