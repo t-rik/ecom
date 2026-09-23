@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { OrderSchema, OrderResponse } from "@/lib/validations";
 import { dispatchOrder } from "@/lib/webhooks";
+import { createOrder } from "@/lib/orders-db";
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,6 +31,23 @@ export async function POST(req: NextRequest) {
       orderId,
       createdAt,
     };
+
+    // Save order in database / store for the /admin dashboard
+    await createOrder({
+      id: orderId,
+      fullName: orderData.fullName,
+      phone: orderData.phone,
+      city: orderData.city,
+      address: orderData.address,
+      productId: orderData.productId,
+      productTitle: orderData.productTitle || orderData.productId,
+      quantity: orderData.quantity,
+      unitPrice: orderData.unitPrice,
+      deliveryFee: orderData.deliveryFee,
+      totalPrice: orderData.totalPrice,
+      status: "NEW",
+      createdAt,
+    });
 
     // Pluggable background webhook dispatch (Telegram, Sheets, CRM)
     await dispatchOrder(fullOrder);

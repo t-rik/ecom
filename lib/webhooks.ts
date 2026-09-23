@@ -58,6 +58,7 @@ async function sendTelegramNotification(order: DispatchedOrderPayload) {
 📍 *المدينة:* ${order.city}
 🏠 *العنوان:* ${order.address}
 ⏰ *التاريخ:* ${new Date(order.createdAt).toLocaleString("fr-FR", { timeZone: "Africa/Casablanca" })}
+🖥️ *لوحة التحكم:* [فتح Admin Dashboard](/admin)
 ━━━━━━━━━━━━━━━━━
   `.trim();
 
