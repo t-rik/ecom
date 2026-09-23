@@ -15,6 +15,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { getWhatsAppLink } from "@/lib/constants";
 
 function ThankYouContent() {
   const { t, dir } = useLanguage();
@@ -38,7 +39,7 @@ function ThankYouContent() {
     }
   }, []);
 
-  const whatsappMessage = encodeURIComponent(
+  const whatsappUrl = getWhatsAppLink(
     `Bonjour, je viens de commander ${productTitle} avec le N° de commande: ${orderId}. Je souhaite confirmer ma livraison.`
   );
 
@@ -112,7 +113,7 @@ function ThankYouContent() {
           {/* WhatsApp Direct Action Button */}
           <div className="mt-6 space-y-3">
             <a
-              href={`https://wa.me/212600000000?text=${whatsappMessage}`}
+              href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-black py-3.5 px-6 rounded-2xl shadow-md shadow-green-500/20 flex items-center justify-center gap-2.5 text-sm sm:text-base transition-transform active:scale-95"
