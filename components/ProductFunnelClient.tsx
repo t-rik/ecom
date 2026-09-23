@@ -9,12 +9,17 @@ import OrderForm from "./OrderForm";
 import FAQSection from "./FAQSection";
 import StickyBottomBar from "./StickyBottomBar";
 import { trackViewContent, trackPageView } from "@/lib/tracking";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface ProductFunnelClientProps {
   product: Product;
 }
 
 export default function ProductFunnelClient({ product }: ProductFunnelClientProps) {
+  const { language } = useLanguage();
+
+  const title = language === "fr" && product.titleFr ? product.titleFr : product.title;
+
   // Pre-selected Option B default
   const defaultBundle =
     product.bundleOptions.find((b) => b.id === "2-units") || product.bundleOptions[0];
@@ -28,11 +33,11 @@ export default function ProductFunnelClient({ product }: ProductFunnelClientProp
     trackPageView();
     trackViewContent({
       id: product.id,
-      name: product.title,
+      name: title,
       price: product.promoPrice,
       category: product.category,
     });
-  }, [product]);
+  }, [product, title]);
 
   const handleBundleChange = (bundleId: string, totalPrice: number) => {
     const selected = product.bundleOptions.find((b) => b.id === bundleId);
@@ -51,8 +56,8 @@ export default function ProductFunnelClient({ product }: ProductFunnelClientProp
       {/* 4. Moroccan Trust Badges */}
       <TrustBadges />
 
-      {/* FAQ Reassurance Section */}
-      <FAQSection faq={product.faq} />
+      {/* FAQ Reassurance Section with bilingual support */}
+      <FAQSection faq={product.faq} faqFr={product.faqFr} />
 
       {/* 5. The Embedded COD Checkout Form */}
       <OrderForm product={product} onBundleChange={handleBundleChange} />
@@ -60,7 +65,7 @@ export default function ProductFunnelClient({ product }: ProductFunnelClientProp
       {/* 5. Sticky Bottom Bar (Mobile only) */}
       <StickyBottomBar
         price={activePrice}
-        productName={product.title}
+        productName={title}
         productId={product.id}
         isFreeDelivery={isFreeDelivery}
       />

@@ -14,17 +14,18 @@ import {
   Clock,
   Sparkles,
 } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 function ThankYouContent() {
+  const { t, dir } = useLanguage();
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId") || "PRK-ORDER";
-  const customerName = searchParams.get("name") || "زبوننا الكريم";
-  const productTitle = searchParams.get("product") || "المنتج المطلوب";
+  const customerName = searchParams.get("name") || "";
+  const productTitle = searchParams.get("product") || "";
   const total = searchParams.get("total") || "";
-  const city = searchParams.get("city") || "المغرب";
+  const city = searchParams.get("city") || "";
 
   useEffect(() => {
-    // Launch celebratory confetti
     try {
       confetti({
         particleCount: 90,
@@ -38,7 +39,7 @@ function ThankYouContent() {
   }, []);
 
   const whatsappMessage = encodeURIComponent(
-    `السلام عليكم، قمت للتو بطلب ${productTitle} برقم الطلب: ${orderId}. أرغب في تأكيد طلبيتي.`
+    `Bonjour, je viens de commander ${productTitle} avec le N° de commande: ${orderId}. Je souhaite confirmer ma livraison.`
   );
 
   return (
@@ -56,48 +57,54 @@ function ThankYouContent() {
 
           <span className="inline-flex items-center gap-1 text-xs font-extrabold text-green-700 bg-green-50 px-3 py-1 rounded-full mb-2">
             <Sparkles className="w-3.5 h-3.5" />
-            تم تسجيل طلبك بنجاح
+            {t("thank_badge")}
           </span>
 
           <h1 className="text-2xl sm:text-3xl font-black text-gray-900 mb-2">
-            شكراً لثقتكم بنا، {customerName}! 🎉
+            {t("thank_title").replace("{name}", customerName || "")}
           </h1>
 
           {/* Key Moroccan COD Message Instruction */}
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-300/80 rounded-2xl p-4 my-5 text-right shadow-xs">
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-300/80 rounded-2xl p-4 my-5 text-start shadow-xs">
             <div className="flex items-start gap-3">
               <Clock className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
               <div>
                 <h4 className="text-sm font-black text-amber-950 mb-1">
-                  الخطوة التالية (مهم جداً):
+                  {t("thank_next_step_title")}
                 </h4>
                 <p className="text-xs sm:text-sm font-semibold text-amber-900 leading-relaxed">
-                  سنتصل بك هاتفياً خلال الساعات القادمة لتأكيد العنوان وموعد التوصيل قبل إرسال الطرد مع الموزع. المرجو إبقاء هاتفك قريباً منك.
+                  {t("thank_next_step_desc")}
                 </p>
               </div>
             </div>
           </div>
 
           {/* Order Reference Box */}
-          <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200 text-right space-y-2.5 text-xs sm:text-sm">
+          <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200 text-start space-y-2.5 text-xs sm:text-sm">
             <div className="flex justify-between items-center">
-              <span className="text-gray-500 font-medium">رقم الطلب (Référence):</span>
+              <span className="text-gray-500 font-medium">{t("thank_order_ref")}</span>
               <span className="font-mono font-bold text-gray-900 bg-white px-2.5 py-1 rounded-md border border-gray-200">
                 {orderId}
               </span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-500 font-medium">المنتج:</span>
-              <span className="font-bold text-gray-900">{productTitle}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-500 font-medium">المدينة:</span>
-              <span className="font-bold text-gray-900">{city}</span>
-            </div>
+            {productTitle && (
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500 font-medium">{t("thank_product")}</span>
+                <span className="font-bold text-gray-900">{productTitle}</span>
+              </div>
+            )}
+            {city && (
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500 font-medium">{t("thank_city")}</span>
+                <span className="font-bold text-gray-900">{city}</span>
+              </div>
+            )}
             {total && (
               <div className="flex justify-between items-center pt-2 border-t border-gray-200 text-sm font-black">
-                <span className="text-gray-800">المبلغ المطلوب عند الاستلام:</span>
-                <span className="text-green-700 text-base">{total} درهم</span>
+                <span className="text-gray-800">{t("thank_total_due")}</span>
+                <span className="text-green-700 text-base">
+                  {total} {t("dh")}
+                </span>
               </div>
             )}
           </div>
@@ -111,24 +118,26 @@ function ThankYouContent() {
               className="w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-black py-3.5 px-6 rounded-2xl shadow-md shadow-green-500/20 flex items-center justify-center gap-2.5 text-sm sm:text-base transition-transform active:scale-95"
             >
               <PhoneCall className="w-5 h-5" />
-              <span>لتسريع المعالجة: أكد طلبك الآن عبر الواتساب</span>
+              <span>{t("thank_whatsapp_cta")}</span>
             </a>
 
             <Link
               href="/"
               className="inline-flex items-center justify-center gap-2 text-xs font-bold text-gray-600 hover:text-green-700 py-2 transition-colors"
             >
-              <span>العودة إلى الصفحة الرئيسية</span>
-              <ArrowRight className="w-4 h-4 rotate-180" />
+              <span>{t("thank_back_home")}</span>
+              <ArrowRight
+                className={`w-4 h-4 ${dir === "rtl" ? "rotate-180" : ""}`}
+              />
             </Link>
           </div>
         </div>
 
         {/* 4 Steps Timeline Card */}
-        <div className="bg-white rounded-3xl p-6 shadow-md border border-gray-200 text-right">
+        <div className="bg-white rounded-3xl p-6 shadow-md border border-gray-200 text-start">
           <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
             <PackageCheck className="w-4 h-4 text-green-600" />
-            <span>مراحل وصول طلبيتك إليك:</span>
+            <span>{t("thank_timeline_title")}</span>
           </h3>
 
           <div className="space-y-4 text-xs sm:text-sm">
@@ -137,8 +146,8 @@ function ThankYouContent() {
                 ✓
               </div>
               <div>
-                <p className="font-bold text-green-700">1. تسجيل الطلب بنجاح</p>
-                <p className="text-gray-500 text-xs">تم حفظ بياناتك بنجاح في نظامنا.</p>
+                <p className="font-bold text-green-700">{t("thank_step1")}</p>
+                <p className="text-gray-500 text-xs">{t("thank_step1_desc")}</p>
               </div>
             </div>
 
@@ -147,8 +156,8 @@ function ThankYouContent() {
                 2
               </div>
               <div>
-                <p className="font-bold text-amber-800">2. اتصال هاتفي للتأكيد</p>
-                <p className="text-gray-500 text-xs">سيتصل بك موظف خدمة العملاء للتأكد من العنوان.</p>
+                <p className="font-bold text-amber-800">{t("thank_step2")}</p>
+                <p className="text-gray-500 text-xs">{t("thank_step2_desc")}</p>
               </div>
             </div>
 
@@ -157,8 +166,8 @@ function ThankYouContent() {
                 <Truck className="w-3.5 h-3.5" />
               </div>
               <div>
-                <p className="font-bold text-gray-700">3. شحن الطرد للمنزل</p>
-                <p className="text-gray-500 text-xs">تسليم سريع خلال 24 إلى 48 ساعة حتى باب بيتك.</p>
+                <p className="font-bold text-gray-700">{t("thank_step3")}</p>
+                <p className="text-gray-500 text-xs">{t("thank_step3_desc")}</p>
               </div>
             </div>
 
@@ -167,8 +176,8 @@ function ThankYouContent() {
                 <ShieldCheck className="w-3.5 h-3.5" />
               </div>
               <div>
-                <p className="font-bold text-gray-700">4. المعاينة والدفع كاش</p>
-                <p className="text-gray-500 text-xs">افحص منتجك بيدك ثم ادفع نقداً بكل أمان.</p>
+                <p className="font-bold text-gray-700">{t("thank_step4")}</p>
+                <p className="text-gray-500 text-xs">{t("thank_step4_desc")}</p>
               </div>
             </div>
           </div>
@@ -183,7 +192,7 @@ export default function ThankYouPage() {
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center bg-slate-50 text-gray-500">
-          جاري التحميل...
+          Loading...
         </div>
       }
     >

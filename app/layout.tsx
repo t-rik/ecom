@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PixelScripts from "@/components/PixelScripts";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 const tajawal = Tajawal({
   subsets: ["arabic"],
@@ -52,10 +53,12 @@ export default function RootLayout({
         <meta name="format-detection" content="telephone=no" />
       </head>
       <body className="font-sans bg-slate-50 text-gray-900 antialiased min-h-screen flex flex-col selection:bg-green-100 selection:text-green-800">
-        <PixelScripts />
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <LanguageProvider>
+          <PixelScripts />
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </LanguageProvider>
       </body>
     </html>
   );

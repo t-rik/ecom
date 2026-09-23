@@ -4,12 +4,19 @@ import { Product } from "@/data/products";
 import ImageGallery from "./ImageGallery";
 import { ShoppingCart, CheckCircle, Flame, ArrowDown } from "lucide-react";
 import { trackInitiateCheckout } from "@/lib/tracking";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface HeroSectionProps {
   product: Product;
 }
 
 export default function HeroSection({ product }: HeroSectionProps) {
+  const { language, t } = useLanguage();
+
+  const title = language === "fr" && product.titleFr ? product.titleFr : product.title;
+  const subtitle = language === "fr" && product.subtitleFr ? product.subtitleFr : product.subtitle;
+  const badge = language === "fr" && product.badgeFr ? product.badgeFr : product.badge;
+
   const discountPercentage = Math.round(
     ((product.originalPrice - product.promoPrice) / product.originalPrice) * 100
   );
@@ -17,7 +24,7 @@ export default function HeroSection({ product }: HeroSectionProps) {
   const handleCtaClick = () => {
     trackInitiateCheckout({
       id: product.id,
-      name: product.title,
+      name: title,
       price: product.promoPrice,
       category: product.category,
       quantity: 1,
@@ -38,8 +45,8 @@ export default function HeroSection({ product }: HeroSectionProps) {
           <div className="md:col-span-5 md:sticky md:top-24 mb-4 md:mb-0">
             <ImageGallery
               images={product.images}
-              productTitle={product.title}
-              badge={product.badge}
+              productTitle={title}
+              badge={badge}
               discountPercentage={discountPercentage}
             />
           </div>
@@ -49,22 +56,22 @@ export default function HeroSection({ product }: HeroSectionProps) {
             {/* Category tag & Stock Urgency */}
             <div className="flex items-center justify-between gap-2 mb-2">
               <span className="text-xs font-bold text-green-700 bg-green-50 px-2.5 py-1 rounded-md border border-green-200 uppercase tracking-wide">
-                {product.category === "auto" ? "مستلزمات السيارات والمنزل" : "أثاث وديكور المنزل"}
+                {product.category === "auto" ? t("category_auto") : t("category_home")}
               </span>
               <div className="flex items-center gap-1.5 text-xs font-semibold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200 animate-pulse">
                 <Flame className="w-3.5 h-3.5" />
-                <span>باقي {product.stockLeft} قطع فقط في المخزون!</span>
+                <span>{t("stock_left").replace("{count}", String(product.stockLeft))}</span>
               </div>
             </div>
 
             {/* Product Title */}
             <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight mb-3">
-              {product.title}
+              {title}
             </h1>
 
             {/* Subtitle / Value proposition */}
             <p className="text-gray-700 text-xs sm:text-sm leading-relaxed mb-4 bg-gray-50/90 p-3 rounded-xl border border-gray-100">
-              {product.subtitle}
+              {subtitle}
             </p>
 
             {/* Pricing Box */}
@@ -72,20 +79,23 @@ export default function HeroSection({ product }: HeroSectionProps) {
               <div className="flex items-baseline justify-between">
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl sm:text-4xl font-extrabold text-green-700 tracking-tight">
-                    {product.promoPrice} <span className="text-lg font-bold">درهم</span>
+                    {product.promoPrice} <span className="text-lg font-bold">{t("dh")}</span>
                   </span>
                   <span className="text-base sm:text-lg text-gray-400 line-through">
-                    {product.originalPrice} درهم
+                    {product.originalPrice} {t("dh")}
                   </span>
                 </div>
                 <span className="bg-rose-500 text-white text-xs font-extrabold px-3 py-1 rounded-full shadow-xs">
-                  توفير {product.originalPrice - product.promoPrice} درهم
+                  {t("save_amount").replace(
+                    "{amount}",
+                    String(product.originalPrice - product.promoPrice)
+                  )}
                 </span>
               </div>
 
               <div className="mt-2 flex items-center gap-2 text-xs text-green-800 font-semibold">
                 <CheckCircle className="w-4 h-4 text-green-600" />
-                <span>عرض حصري متوفر الآن + إمكانية المعاينة قبل الأداء</span>
+                <span>{t("exclusive_offer_note")}</span>
               </div>
             </div>
 
@@ -95,7 +105,7 @@ export default function HeroSection({ product }: HeroSectionProps) {
               className="w-full group relative overflow-hidden bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-600 hover:from-emerald-700 hover:to-green-700 text-white text-base sm:text-lg font-black py-4 px-6 rounded-2xl shadow-lg shadow-green-600/30 transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-3 cursor-pointer"
             >
               <ShoppingCart className="w-6 h-6 animate-bounce" />
-              <span>اطلب الآن والدفع عند الاستلام</span>
+              <span>{t("quick_cta")}</span>
               <ArrowDown className="w-5 h-5 opacity-80 group-hover:translate-y-1 transition-transform" />
             </button>
           </div>
@@ -104,3 +114,4 @@ export default function HeroSection({ product }: HeroSectionProps) {
     </section>
   );
 }
+

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown, HelpCircle } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface FAQItem {
   q: string;
@@ -10,10 +11,14 @@ interface FAQItem {
 
 interface FAQSectionProps {
   faq: FAQItem[];
+  faqFr?: FAQItem[];
 }
 
-export default function FAQSection({ faq }: FAQSectionProps) {
+export default function FAQSection({ faq, faqFr }: FAQSectionProps) {
+  const { language, t } = useLanguage();
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  const activeFaq = language === "fr" && faqFr && faqFr.length > 0 ? faqFr : faq;
 
   const toggle = (idx: number) => {
     setOpenIndex(openIndex === idx ? null : idx);
@@ -25,13 +30,13 @@ export default function FAQSection({ faq }: FAQSectionProps) {
         <div className="text-center mb-6">
           <div className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 bg-gray-100 px-3 py-1 rounded-full mb-1">
             <HelpCircle className="w-3.5 h-3.5 text-gray-500" />
-            <span>الأسئلة الشائعة</span>
+            <span>{t("faq_badge")}</span>
           </div>
-          <h3 className="text-xl font-black text-gray-900">كل ما تود معرفته قبل الطلب</h3>
+          <h3 className="text-xl font-black text-gray-900">{t("faq_title")}</h3>
         </div>
 
         <div className="space-y-3 max-w-2xl mx-auto">
-          {faq.map((item, index) => {
+          {activeFaq.map((item, index) => {
             const isOpen = openIndex === index;
             return (
               <div
@@ -40,7 +45,7 @@ export default function FAQSection({ faq }: FAQSectionProps) {
               >
                 <button
                   onClick={() => toggle(index)}
-                  className="w-full p-4 text-right flex items-center justify-between gap-3 bg-white hover:bg-gray-50 transition-colors"
+                  className="w-full p-4 text-start flex items-center justify-between gap-3 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
                 >
                   <span className="font-bold text-sm sm:text-base text-gray-900 leading-snug">
                     {item.q}
@@ -52,7 +57,7 @@ export default function FAQSection({ faq }: FAQSectionProps) {
                   />
                 </button>
                 {isOpen && (
-                  <div className="p-4 pt-1 text-xs sm:text-sm text-gray-600 leading-relaxed bg-gray-50/50 border-t border-gray-100">
+                  <div className="p-4 pt-1 text-xs sm:text-sm text-gray-600 leading-relaxed bg-gray-50/50 border-t border-gray-100 text-start">
                     {item.a}
                   </div>
                 )}
