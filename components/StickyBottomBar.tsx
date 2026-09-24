@@ -19,7 +19,7 @@ export default function StickyBottomBar({
   productId = "",
 }: StickyBottomBarProps) {
   const { t, language } = useLanguage();
-  const [isVisible, setIsVisible] = useState(true);
+  const [isOrderCtaVisible, setIsOrderCtaVisible] = useState(true);
 
   useEffect(() => {
     const formElement = document.getElementById("order-form");
@@ -29,9 +29,9 @@ export default function StickyBottomBar({
 
     const updateVisibility = () => {
       const rect = formElement.getBoundingClientRect();
-      // Hide button once the form reaches the middle of the viewport
+      // Hide order CTA button once the form reaches the middle of the viewport
       const isAtOrPastForm = rect.top <= window.innerHeight * 0.5;
-      setIsVisible(!isAtOrPastForm);
+      setIsOrderCtaVisible(!isAtOrPastForm);
       ticking = false;
     };
 
@@ -87,22 +87,16 @@ export default function StickyBottomBar({
   };
 
   return (
-    <div
-      className={`fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-200/80 px-3.5 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.12)] transition-all duration-300 ease-in-out md:hidden ${
-        isVisible
-          ? "translate-y-0 opacity-100 pointer-events-auto"
-          : "translate-y-full opacity-0 pointer-events-none"
-      }`}
-    >
+    <div className="fixed bottom-0 left-0 right-0 z-40 px-3.5 py-3 pointer-events-none md:hidden">
       <div className="max-w-md mx-auto flex items-center gap-2" dir="ltr">
-        {/* WhatsApp Button (Bottom Left on mobile screen) */}
+        {/* WhatsApp Button (Permanent on Bottom Left) */}
         <a
           href={whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
           onClick={handleWhatsAppClick}
           aria-label={t("sticky_whatsapp")}
-          className="bg-[#25D366] hover:bg-[#20ba59] active:scale-[0.98] text-white font-bold py-3.5 px-3.5 rounded-2xl shadow-lg shadow-green-500/20 flex items-center justify-center gap-1.5 transition-all text-xs shrink-0 cursor-pointer"
+          className="pointer-events-auto bg-[#25D366] hover:bg-[#20ba59] active:scale-[0.98] text-white font-bold py-3.5 px-3.5 rounded-2xl shadow-xl shadow-green-500/25 flex items-center justify-center gap-1.5 transition-all text-xs shrink-0 cursor-pointer border border-green-400/30"
         >
           <svg
             className="w-5 h-5 fill-current shrink-0"
@@ -115,16 +109,24 @@ export default function StickyBottomBar({
           <span className="whitespace-nowrap">{t("sticky_whatsapp")}</span>
         </a>
 
-        {/* Main Order CTA Button on the right */}
-        <button
-          type="button"
-          onClick={handleScrollToForm}
-          className="flex-1 bg-[#00a650] hover:bg-[#008f45] text-white font-black py-3.5 px-3 rounded-2xl shadow-lg shadow-green-600/30 flex items-center justify-center gap-2 active:scale-[0.98] transition-all text-sm sm:text-base cursor-pointer"
+        {/* Main Order CTA Button on the right (fades out smoothly when on form) */}
+        <div
+          className={`flex-1 transition-all duration-300 ease-in-out ${
+            isOrderCtaVisible
+              ? "opacity-100 translate-y-0 pointer-events-auto"
+              : "opacity-0 translate-y-6 pointer-events-none"
+          }`}
         >
-          <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 animate-bounce shrink-0" />
-          <span className="whitespace-nowrap">{t("sticky_cta")}</span>
-          <ArrowDown className="w-4 h-4 shrink-0" />
-        </button>
+          <button
+            type="button"
+            onClick={handleScrollToForm}
+            className="w-full bg-[#00a650] hover:bg-[#008f45] text-white font-black py-3.5 px-3 rounded-2xl shadow-xl shadow-green-600/30 flex items-center justify-center gap-2 active:scale-[0.98] transition-all text-sm sm:text-base cursor-pointer border border-green-500/30"
+          >
+            <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 animate-bounce shrink-0" />
+            <span className="whitespace-nowrap">{t("sticky_cta")}</span>
+            <ArrowDown className="w-4 h-4 shrink-0" />
+          </button>
+        </div>
       </div>
     </div>
   );
