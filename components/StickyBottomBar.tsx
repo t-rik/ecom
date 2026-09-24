@@ -24,20 +24,30 @@ export default function StickyBottomBar({
     const formElement = document.getElementById("order-form");
     if (!formElement) return;
 
-    const checkFormVisibility = () => {
+    let ticking = false;
+
+    const updateVisibility = () => {
       const rect = formElement.getBoundingClientRect();
-      // Hide button as soon as user reaches the form or is anywhere inside/past it
-      const isAtOrPastForm = rect.top <= window.innerHeight - 60;
+      // Hide button once the form reaches the middle of the viewport
+      const isAtOrPastForm = rect.top <= window.innerHeight * 0.5;
       setIsVisible(!isAtOrPastForm);
+      ticking = false;
     };
 
-    window.addEventListener("scroll", checkFormVisibility, { passive: true });
-    window.addEventListener("resize", checkFormVisibility, { passive: true });
-    checkFormVisibility();
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateVisibility);
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    updateVisibility();
 
     return () => {
-      window.removeEventListener("scroll", checkFormVisibility);
-      window.removeEventListener("resize", checkFormVisibility);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
     };
   }, []);
 
