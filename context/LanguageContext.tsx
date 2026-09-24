@@ -82,6 +82,7 @@ export const translations: Record<Language, Record<string, string>> = {
     sticky_free_delivery: "✨ توصيل بالمجان",
     sticky_cod: "الدفع عند الاستلام",
     sticky_cta: "اطلب الآن",
+    sticky_whatsapp: "تواصل معنا",
 
     // Thank you page
     thank_badge: "تم تسجيل طلبك بنجاح",
@@ -197,6 +198,7 @@ export const translations: Record<Language, Record<string, string>> = {
     sticky_free_delivery: "✨ Livraison Gratuite",
     sticky_cod: "Paiement à la livraison",
     sticky_cta: "Commander",
+    sticky_whatsapp: "Contactez-nous",
 
     // Thank you page
     thank_badge: "Commande enregistrée avec succès",
