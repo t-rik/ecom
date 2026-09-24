@@ -29,9 +29,9 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
 
   const title = language === "fr" && product.titleFr ? product.titleFr : product.title;
 
-  // Pre-select Option B (2 units) by default
+  // Pre-select Option A (1 unit) by default
   const defaultBundle =
-    product.bundleOptions.find((b) => b.id === "2-units") || product.bundleOptions[0];
+    product.bundleOptions.find((b) => b.id === "1-unit") || product.bundleOptions[0];
 
   const [selectedBundleId, setSelectedBundleId] = useState<string>(defaultBundle.id);
   const [fullName, setFullName] = useState("");

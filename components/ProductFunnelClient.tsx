@@ -20,9 +20,9 @@ export default function ProductFunnelClient({ product }: ProductFunnelClientProp
 
   const title = language === "fr" && product.titleFr ? product.titleFr : product.title;
 
-  // Pre-selected Option B default
+  // Pre-selected Option A default (1 unit)
   const defaultBundle =
-    product.bundleOptions.find((b) => b.id === "2-units") || product.bundleOptions[0];
+    product.bundleOptions.find((b) => b.id === "1-unit") || product.bundleOptions[0];
 
   const [activePrice, setActivePrice] = useState(
     defaultBundle.price + defaultBundle.deliveryFee
