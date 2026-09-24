@@ -1,6 +1,6 @@
-export const STORE_PHONE_RAW = "0711890473";
-export const STORE_PHONE_DISPLAY = "07 11 89 04 73";
-export const STORE_WHATSAPP_NUMBER = "212711890473";
+export const STORE_PHONE_RAW = "0773279412";
+export const STORE_PHONE_DISPLAY = "07 73 27 94 12";
+export const STORE_WHATSAPP_NUMBER = "212773279412";
 export const STORE_WHATSAPP_BASE_URL = `https://wa.me/${STORE_WHATSAPP_NUMBER}`;
 
 export function getWhatsAppLink(message?: string): string {
