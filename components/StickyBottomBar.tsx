@@ -22,24 +22,23 @@ export default function StickyBottomBar({
 
   useEffect(() => {
     const formElement = document.getElementById("order-form");
-    const footerElement = document.querySelector("footer");
+    if (!formElement) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        // Disappear when either order-form or footer is in view
-        const isFormOrFooterVisible = entries.some((entry) => entry.isIntersecting);
-        setIsVisible(!isFormOrFooterVisible);
-      },
-      {
-        threshold: 0.05,
-        rootMargin: "0px 0px -20px 0px",
-      }
-    );
+    const checkFormVisibility = () => {
+      const rect = formElement.getBoundingClientRect();
+      // Hide button as soon as user reaches the form or is anywhere inside/past it
+      const isAtOrPastForm = rect.top <= window.innerHeight - 60;
+      setIsVisible(!isAtOrPastForm);
+    };
 
-    if (formElement) observer.observe(formElement);
-    if (footerElement) observer.observe(footerElement);
+    window.addEventListener("scroll", checkFormVisibility, { passive: true });
+    window.addEventListener("resize", checkFormVisibility, { passive: true });
+    checkFormVisibility();
 
-    return () => observer.disconnect();
+    return () => {
+      window.removeEventListener("scroll", checkFormVisibility);
+      window.removeEventListener("resize", checkFormVisibility);
+    };
   }, []);
 
   const handleScrollToForm = () => {
