@@ -298,7 +298,6 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
                     setFullName(e.target.value);
                     if (errors.fullName) setErrors({ ...errors, fullName: "" });
                   }}
-                  placeholder={t("full_name_placeholder")}
                   className={`w-full py-3.5 px-10 rounded-xl border text-sm font-medium transition-colors outline-hidden ${
                     errors.fullName
                       ? "border-red-400 bg-red-50/30 focus:border-red-500"
@@ -330,7 +329,6 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
                     setPhone(e.target.value);
                     if (errors.phone) setErrors({ ...errors, phone: "" });
                   }}
-                  placeholder={t("phone_placeholder")}
                   className={`w-full text-left py-3.5 pl-10 pr-3 rounded-xl border text-sm font-medium tracking-wide transition-colors outline-hidden ${
                     errors.phone
                       ? "border-red-400 bg-red-50/30 focus:border-red-500"
@@ -391,7 +389,6 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
                     setAddress(e.target.value);
                     if (errors.address) setErrors({ ...errors, address: "" });
                   }}
-                  placeholder={t("address_placeholder")}
                   className={`w-full py-3.5 px-10 rounded-xl border text-sm font-medium transition-colors outline-hidden ${
                     errors.address
                       ? "border-red-400 bg-red-50/30 focus:border-red-500"
