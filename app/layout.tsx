@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   },
   verification: {
     other: {
-      "facebook-domain-verification": ["0ci45r0qycw8z93ihx514b4pvomc0a"],
+      "facebook-domain-verification": ["53wq1v7i8ykgguv0rhdyi7uvo2lfku"],
     },
   },
 };
@@ -56,7 +56,7 @@ export default function RootLayout({
     <html lang="ar" dir="rtl" className={`${tajawal.variable} scroll-smooth`}>
       <head>
         <meta name="format-detection" content="telephone=no" />
-        <meta name="facebook-domain-verification" content="0ci45r0qycw8z93ihx514b4pvomc0a" />
+        <meta name="facebook-domain-verification" content="53wq1v7i8ykgguv0rhdyi7uvo2lfku" />
         {/* Meta Pixel (Synchronous early head init ensures early events are never lost) */}
         <script
           dangerouslySetInnerHTML={{
