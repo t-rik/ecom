@@ -11,7 +11,7 @@
  * - Contact (WhatsApp lead / inquiry click)
  */
 
-export const DEFAULT_META_PIXEL_ID = "1795033998462593";
+export const DEFAULT_META_PIXEL_ID = "2426655351476249";
 
 export const getMetaPixelId = (): string => {
   return process.env.NEXT_PUBLIC_META_PIXEL_ID || DEFAULT_META_PIXEL_ID;

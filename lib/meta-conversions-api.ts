@@ -1,6 +1,6 @@
 import crypto from "crypto";
 
-export const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "1795033998462593";
+export const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "2426655351476249";
 export const META_CAPI_ACCESS_TOKEN = process.env.META_CONVERSIONS_API_ACCESS_TOKEN || "";
 
 /**
