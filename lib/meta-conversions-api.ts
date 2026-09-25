@@ -42,14 +42,22 @@ export interface ServerPurchaseParams {
   sourceUrl?: string;
 }
 
+export const getMetaPixelId = (): string => {
+  return process.env.NEXT_PUBLIC_META_PIXEL_ID || "2426655351476249";
+};
+
+export const getMetaCapiToken = (): string => {
+  return process.env.META_CONVERSIONS_API_ACCESS_TOKEN || "";
+};
+
 /**
  * Dispatches a Purchase event directly from Next.js server to Meta's Graph API.
  * This completely bypasses ad blockers, Brave shields, and iOS Safari restrictions.
  * Uses exact same orderId as client-side event for automatic Meta deduplication.
  */
 export async function sendMetaServerPurchase(params: ServerPurchaseParams): Promise<{ success: boolean; data?: any; error?: string }> {
-  const token = META_CAPI_ACCESS_TOKEN;
-  const pixelId = META_PIXEL_ID;
+  const token = getMetaCapiToken();
+  const pixelId = getMetaPixelId();
 
   if (!token) {
     console.log("[Meta CAPI] Skipped: META_CONVERSIONS_API_ACCESS_TOKEN is not configured.");
