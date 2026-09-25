@@ -71,6 +71,7 @@ function ThankYouContent() {
         ],
       });
       sessionStorage.setItem(deduplicationKey, "true");
+      sessionStorage.removeItem("pratiko_checkout_initiated");
     }
   }, [orderId, total, productTitle, router]);
 

@@ -106,11 +106,14 @@ export function trackViewContent(product: TrackingProduct) {
  */
 export function trackAddToCart(product: TrackingProduct) {
   safeRun(() => {
+    // product.price is already the total packaged price for the bundle
+    const bundlePrice = product.price;
+
     // 1. Meta Pixel
     trackMetaAddToCart({
       content_name: product.name,
       content_ids: [product.id],
-      value: product.price * (product.quantity || 1),
+      value: bundlePrice,
       currency: "MAD",
       quantity: product.quantity || 1,
     });
@@ -120,7 +123,7 @@ export function trackAddToCart(product: TrackingProduct) {
       window.ttq.track("AddToCart", {
         content_id: product.id,
         content_name: product.name,
-        value: product.price * (product.quantity || 1),
+        value: bundlePrice,
         currency: "MAD",
         quantity: product.quantity || 1,
       });
@@ -129,11 +132,18 @@ export function trackAddToCart(product: TrackingProduct) {
 }
 
 /**
- * InitiateCheckout event (User starts interacting with order form)
+ * InitiateCheckout event (User starts interacting with order form or clicks order CTA)
+ * Session-guarded so clicking CTA and then focusing on form fields does not fire twice.
  */
 export function trackInitiateCheckout(product: TrackingProduct) {
   safeRun(() => {
-    const totalValue = product.price * (product.quantity || 1);
+    if (typeof window !== "undefined") {
+      if (sessionStorage.getItem("pratiko_checkout_initiated")) return;
+      sessionStorage.setItem("pratiko_checkout_initiated", "true");
+    }
+
+    // product.price is already the total packaged price for the bundle
+    const totalValue = product.price;
 
     // 1. Meta Pixel
     trackMetaInitiateCheckout({
