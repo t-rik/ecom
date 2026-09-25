@@ -8,7 +8,7 @@ import TrustBadges from "./TrustBadges";
 import OrderForm from "./OrderForm";
 import FAQSection from "./FAQSection";
 import StickyBottomBar from "./StickyBottomBar";
-import { trackViewContent, trackPageView } from "@/lib/tracking";
+import { trackViewContent } from "@/lib/tracking";
 import { useLanguage } from "@/context/LanguageContext";
 
 interface ProductFunnelClientProps {
@@ -30,7 +30,6 @@ export default function ProductFunnelClient({ product }: ProductFunnelClientProp
   const [isFreeDelivery, setIsFreeDelivery] = useState(defaultBundle.deliveryFee === 0);
 
   useEffect(() => {
-    trackPageView();
     trackViewContent({
       id: product.id,
       name: title,
