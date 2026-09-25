@@ -68,16 +68,6 @@ export default function RootLayout({
             `,
           }}
         />
-        <noscript>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            height="1"
-            width="1"
-            style={{ display: "none" }}
-            src="https://www.facebook.com/tr?id=1795033998462593&ev=PageView&noscript=1"
-            alt=""
-          />
-        </noscript>
       </head>
       <body className="font-sans bg-slate-50 text-gray-900 antialiased min-h-screen flex flex-col selection:bg-green-100 selection:text-green-800">
         <LanguageProvider>
