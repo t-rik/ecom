@@ -59,14 +59,14 @@ function ThankYouContent() {
     if (typeof window !== "undefined" && !sessionStorage.getItem(deduplicationKey)) {
       trackPurchase({
         orderId,
-        value: Number(total) || 189,
+        value: Number(total) || 159,
         currency: "MAD",
         items: [
           {
             id: "aspirateur-sans-fil",
             name: productTitle || "Aspirateur Sans Fil",
             quantity: 1,
-            price: Number(total) || 189,
+            price: Number(total) || 159,
           },
         ],
       });
