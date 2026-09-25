@@ -90,11 +90,26 @@ declare global {
 }
 
 /**
- * Check if the Meta Pixel (fbq) is loaded and callable in browser.
+ * Ensures window.fbq queue stub exists so events are queued even before fbevents.js finishes downloading.
  */
-export const isFbqAvailable = (): boolean => {
-  return typeof window !== "undefined" && typeof window.fbq === "function";
-};
+export function ensureFbqStub(): void {
+  if (typeof window === "undefined") return;
+  if (!window.fbq) {
+    const n: any = function () {
+      if (n.callMethod) {
+        n.callMethod.apply(n, arguments);
+      } else {
+        n.queue.push(arguments);
+      }
+    };
+    if (!window._fbq) window._fbq = n;
+    n.push = n;
+    n.loaded = false;
+    n.version = "2.0";
+    n.queue = [];
+    window.fbq = n;
+  }
+}
 
 /**
  * Generic safe event dispatcher with optional eventID for deduplication.
@@ -107,12 +122,12 @@ export function trackMetaEvent(
   if (typeof window === "undefined") return;
 
   try {
-    if (isFbqAvailable()) {
-      if (eventID) {
-        window.fbq!("track", event, params, { eventID });
-      } else {
-        window.fbq!("track", event, params);
-      }
+    ensureFbqStub();
+
+    if (eventID) {
+      window.fbq!("track", event, params, { eventID });
+    } else {
+      window.fbq!("track", event, params);
     }
 
     if (process.env.NODE_ENV === "development") {
@@ -134,12 +149,12 @@ export function trackMetaCustomEvent(
   if (typeof window === "undefined") return;
 
   try {
-    if (isFbqAvailable()) {
-      if (eventID) {
-        window.fbq!("trackCustom", eventName, params, { eventID });
-      } else {
-        window.fbq!("trackCustom", eventName, params);
-      }
+    ensureFbqStub();
+
+    if (eventID) {
+      window.fbq!("trackCustom", eventName, params, { eventID });
+    } else {
+      window.fbq!("trackCustom", eventName, params);
     }
 
     if (process.env.NODE_ENV === "development") {
