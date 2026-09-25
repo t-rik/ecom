@@ -148,6 +148,10 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
       const data = await response.json();
 
       if (response.ok && data.success) {
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("valid_order_session", data.orderId);
+        }
+
         trackPurchase({
           orderId: data.orderId || "PRK-ORDER",
           value: totalCalculated,

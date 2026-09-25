@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import confetti from "canvas-confetti";
 import {
@@ -20,14 +20,29 @@ import { trackPurchase, trackWhatsAppClick } from "@/lib/tracking";
 
 function ThankYouContent() {
   const { t, dir } = useLanguage();
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const orderId = searchParams.get("orderId") || "PRK-ORDER";
+  const orderId = searchParams.get("orderId") || "";
   const customerName = searchParams.get("name") || "";
   const productTitle = searchParams.get("product") || "";
   const total = searchParams.get("total") || "";
   const city = searchParams.get("city") || "";
 
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+
   useEffect(() => {
+    // Session authorization check: ensure user actually placed an order in this session
+    const storedSession =
+      typeof window !== "undefined" ? sessionStorage.getItem("valid_order_session") : null;
+
+    if (!orderId || !storedSession || storedSession !== orderId) {
+      // Fake order ID or shared link: immediately redirect to home page
+      router.replace("/");
+      return;
+    }
+
+    setIsAuthorized(true);
+
     try {
       confetti({
         particleCount: 90,
@@ -40,26 +55,32 @@ function ThankYouContent() {
     }
 
     // Deduplicated Meta Pixel & TikTok Purchase tracking
-    if (orderId && orderId !== "PRK-ORDER") {
-      const deduplicationKey = `pratiko_tracked_order_${orderId}`;
-      if (typeof window !== "undefined" && !sessionStorage.getItem(deduplicationKey)) {
-        trackPurchase({
-          orderId,
-          value: Number(total) || 189,
-          currency: "MAD",
-          items: [
-            {
-              id: "aspirateur-sans-fil",
-              name: productTitle || "Aspirateur Sans Fil",
-              quantity: 1,
-              price: Number(total) || 189,
-            },
-          ],
-        });
-        sessionStorage.setItem(deduplicationKey, "true");
-      }
+    const deduplicationKey = `pratiko_tracked_order_${orderId}`;
+    if (typeof window !== "undefined" && !sessionStorage.getItem(deduplicationKey)) {
+      trackPurchase({
+        orderId,
+        value: Number(total) || 189,
+        currency: "MAD",
+        items: [
+          {
+            id: "aspirateur-sans-fil",
+            name: productTitle || "Aspirateur Sans Fil",
+            quantity: 1,
+            price: Number(total) || 189,
+          },
+        ],
+      });
+      sessionStorage.setItem(deduplicationKey, "true");
     }
-  }, [orderId, total, productTitle]);
+  }, [orderId, total, productTitle, router]);
+
+  if (!isAuthorized) {
+    return (
+      <div className="w-full min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" />
+      </div>
+    );
+  }
 
   const whatsappUrl = getWhatsAppLink(
     `Bonjour, je viens de commander ${productTitle} avec le N° de commande: ${orderId}. Je souhaite confirmer ma livraison.`
