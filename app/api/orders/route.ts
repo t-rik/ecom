@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { OrderSchema, OrderResponse } from "@/lib/validations";
 import { dispatchOrder } from "@/lib/webhooks";
 import { createOrder } from "@/lib/orders-db";
+import { sendMetaServerPurchase } from "@/lib/meta-conversions-api";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -9,6 +10,13 @@ export const revalidate = 0;
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+
+    const clientIp =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      req.headers.get("x-real-ip") ||
+      undefined;
+    const clientUserAgent = req.headers.get("user-agent") || undefined;
+    const referer = req.headers.get("referer") || undefined;
 
     const result = OrderSchema.safeParse(body);
     if (!result.success) {
@@ -54,6 +62,21 @@ export async function POST(req: NextRequest) {
 
     // Pluggable background webhook dispatch (Telegram, Sheets, CRM)
     await dispatchOrder(fullOrder);
+
+    // Meta Conversions API (CAPI) - Server-to-Server tracking (100% ad-blocker & iOS Safari immune)
+    sendMetaServerPurchase({
+      orderId,
+      fullName: orderData.fullName,
+      phone: orderData.phone,
+      city: orderData.city,
+      totalPrice: orderData.totalPrice,
+      productId: orderData.productId,
+      productTitle: orderData.productTitle || orderData.productId,
+      quantity: orderData.quantity,
+      clientIp,
+      clientUserAgent,
+      sourceUrl: referer,
+    }).catch((capiErr) => console.error("[Orders API] Meta CAPI background error:", capiErr));
 
     return NextResponse.json<OrderResponse>(
       {
