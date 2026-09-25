@@ -62,6 +62,7 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
   };
 
   const handleBundleSelect = (bundleId: string) => {
+    if (bundleId === selectedBundleId) return;
     setSelectedBundleId(bundleId);
     const chosen = product.bundleOptions.find((b) => b.id === bundleId);
     if (chosen) {
@@ -151,20 +152,6 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
         if (typeof window !== "undefined") {
           sessionStorage.setItem("valid_order_session", data.orderId);
         }
-
-        trackPurchase({
-          orderId: data.orderId || "PRK-ORDER",
-          value: totalCalculated,
-          currency: "MAD",
-          items: [
-            {
-              id: product.id,
-              name: title,
-              quantity: currentBundle.quantity,
-              price: currentBundle.price,
-            },
-          ],
-        });
 
         router.push(
           `/thank-you?orderId=${encodeURIComponent(data.orderId)}&name=${encodeURIComponent(

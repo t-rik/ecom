@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Product } from "@/data/products";
 import HeroSection from "./HeroSection";
 import BenefitCards from "./BenefitCards";
@@ -28,14 +28,18 @@ export default function ProductFunnelClient({ product }: ProductFunnelClientProp
     defaultBundle.price + defaultBundle.deliveryFee
   );
   const [isFreeDelivery, setIsFreeDelivery] = useState(defaultBundle.deliveryFee === 0);
+  const hasTracked = useRef(false);
 
   useEffect(() => {
-    trackViewContent({
-      id: product.id,
-      name: title,
-      price: product.promoPrice,
-      category: product.category,
-    });
+    if (!hasTracked.current) {
+      hasTracked.current = true;
+      trackViewContent({
+        id: product.id,
+        name: title,
+        price: product.promoPrice,
+        category: product.category,
+      });
+    }
   }, [product, title]);
 
   const handleBundleChange = (bundleId: string, totalPrice: number) => {
