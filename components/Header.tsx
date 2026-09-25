@@ -7,6 +7,7 @@ import Logo from "./Logo";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useLanguage } from "@/context/LanguageContext";
 import { STORE_WHATSAPP_BASE_URL } from "@/lib/constants";
+import { trackWhatsAppClick } from "@/lib/tracking";
 
 export default function Header() {
   const pathname = usePathname();
@@ -49,6 +50,7 @@ export default function Header() {
             href={STORE_WHATSAPP_BASE_URL}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackWhatsAppClick()}
             className="flex items-center gap-1 text-xs font-bold text-gray-700 hover:text-green-600 bg-gray-50 hover:bg-green-50 px-2.5 sm:px-3 py-1.5 rounded-lg border border-gray-200 hover:border-green-300 transition-all shrink-0"
             aria-label="WhatsApp Support"
           >

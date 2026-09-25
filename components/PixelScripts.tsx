@@ -1,18 +1,46 @@
 "use client";
 
 import Script from "next/script";
+import { useEffect, useRef, Suspense } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { trackMetaPageView, DEFAULT_META_PIXEL_ID } from "@/lib/meta-pixel";
 
 interface PixelScriptsProps {
   metaPixelId?: string;
   tiktokPixelId?: string;
 }
 
+/**
+ * Tracks PageView on client-side route changes in Next.js App Router.
+ * Skips the very first mount because the inline script already sends the initial PageView.
+ */
+function RouteChangeListener() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    trackMetaPageView();
+  }, [pathname, searchParams]);
+
+  return null;
+}
+
 export default function PixelScripts({
-  metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID,
+  metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID || DEFAULT_META_PIXEL_ID,
   tiktokPixelId = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID,
 }: PixelScriptsProps) {
   return (
     <>
+      {/* Route Change Tracker for SPA navigation */}
+      <Suspense fallback={null}>
+        <RouteChangeListener />
+      </Suspense>
+
       {/* Meta (Facebook) Pixel */}
       {metaPixelId && (
         <>

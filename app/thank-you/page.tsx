@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { getWhatsAppLink } from "@/lib/constants";
+import { trackPurchase, trackWhatsAppClick } from "@/lib/tracking";
 
 function ThankYouContent() {
   const { t, dir } = useLanguage();
@@ -37,7 +38,28 @@ function ThankYouContent() {
     } catch {
       // safe fallback
     }
-  }, []);
+
+    // Deduplicated Meta Pixel & TikTok Purchase tracking
+    if (orderId && orderId !== "PRK-ORDER") {
+      const deduplicationKey = `pratiko_tracked_order_${orderId}`;
+      if (typeof window !== "undefined" && !sessionStorage.getItem(deduplicationKey)) {
+        trackPurchase({
+          orderId,
+          value: Number(total) || 189,
+          currency: "MAD",
+          items: [
+            {
+              id: "aspirateur-sans-fil",
+              name: productTitle || "Aspirateur Sans Fil",
+              quantity: 1,
+              price: Number(total) || 189,
+            },
+          ],
+        });
+        sessionStorage.setItem(deduplicationKey, "true");
+      }
+    }
+  }, [orderId, total, productTitle]);
 
   const whatsappUrl = getWhatsAppLink(
     `Bonjour, je viens de commander ${productTitle} avec le N° de commande: ${orderId}. Je souhaite confirmer ma livraison.`
@@ -116,6 +138,7 @@ function ThankYouContent() {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackWhatsAppClick(productTitle, Number(total) || undefined)}
               className="w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-black py-3.5 px-6 rounded-2xl shadow-md shadow-green-500/20 flex items-center justify-center gap-2.5 text-sm sm:text-base transition-transform active:scale-95"
             >
               <PhoneCall className="w-5 h-5" />

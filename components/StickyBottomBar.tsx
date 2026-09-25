@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ShoppingBag, ArrowDown } from "lucide-react";
-import { trackInitiateCheckout } from "@/lib/tracking";
+import { trackInitiateCheckout, trackWhatsAppClick } from "@/lib/tracking";
 import { useLanguage } from "@/context/LanguageContext";
 import { getWhatsAppLink } from "@/lib/constants";
 
@@ -76,14 +76,7 @@ export default function StickyBottomBar({
   const whatsappUrl = getWhatsAppLink(whatsappMessage);
 
   const handleWhatsAppClick = () => {
-    if (productId && productName) {
-      trackInitiateCheckout({
-        id: productId,
-        name: `${productName} (WhatsApp Contact)`,
-        price: price,
-        quantity: 1,
-      });
-    }
+    trackWhatsAppClick(productName, price);
   };
 
   return (

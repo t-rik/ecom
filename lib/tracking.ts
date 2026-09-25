@@ -1,11 +1,22 @@
 /**
- * Lightweight, non-blocking Pixel Tracking Utility for Meta (Facebook) & TikTok Pixels.
- * Safely dispatches standard e-commerce events without blocking UI rendering.
+ * Centralized tracking dispatcher for Meta (Facebook) & TikTok Pixels.
+ * Fully typed, non-blocking, and optimized for Cash on Delivery (COD) funnels.
  */
+
+import {
+  trackMetaPageView,
+  trackMetaViewContent,
+  trackMetaAddToCart,
+  trackMetaInitiateCheckout,
+  trackMetaPurchase,
+  trackMetaContact,
+  MetaPurchaseParams,
+} from "./meta-pixel";
+
+export * from "./meta-pixel";
 
 declare global {
   interface Window {
-    fbq?: (...args: any[]) => void;
     ttq?: {
       track: (eventName: string, data?: Record<string, any>, options?: Record<string, any>) => void;
       page: () => void;
@@ -36,13 +47,12 @@ export interface PurchaseEventData {
 
 const isBrowser = typeof window !== "undefined";
 
-function safeDispatch(fn: () => void) {
+function safeRun(fn: () => void) {
   if (!isBrowser) return;
-  // Use requestIdleCallback or setTimeout to guarantee zero render blocking
-  if ("requestIdleCallback" in window) {
-    (window as any).requestIdleCallback(fn, { timeout: 1000 });
-  } else {
-    setTimeout(fn, 0);
+  try {
+    fn();
+  } catch (err) {
+    console.warn("[Tracking] Error executing tracking call:", err);
   }
 }
 
@@ -50,136 +60,156 @@ function safeDispatch(fn: () => void) {
  * Standard PageView event
  */
 export function trackPageView() {
-  safeDispatch(() => {
-    try {
-      if (typeof window.fbq === "function") {
-        window.fbq("track", "PageView");
-      }
-      if (window.ttq && typeof window.ttq.page === "function") {
-        window.ttq.page();
-      }
-      if (process.env.NODE_ENV === "development") {
-        console.log("[Tracking] PageView sent");
-      }
-    } catch (e) {
-      console.warn("[Tracking] Error sending PageView:", e);
+  safeRun(() => {
+    // 1. Meta Pixel
+    trackMetaPageView();
+
+    // 2. TikTok Pixel
+    if (window.ttq && typeof window.ttq.page === "function") {
+      window.ttq.page();
     }
   });
 }
 
 /**
- * Standard ViewContent event
+ * Standard ViewContent event (User lands on product page)
  */
 export function trackViewContent(product: TrackingProduct) {
-  safeDispatch(() => {
-    try {
-      const fbData = {
-        content_name: product.name,
-        content_ids: [product.id],
+  safeRun(() => {
+    // 1. Meta Pixel
+    trackMetaViewContent({
+      content_name: product.name,
+      content_ids: [product.id],
+      content_type: "product",
+      content_category: product.category || "General",
+      value: product.price,
+      currency: "MAD",
+    });
+
+    // 2. TikTok Pixel
+    if (window.ttq && typeof window.ttq.track === "function") {
+      window.ttq.track("ViewContent", {
+        content_id: product.id,
         content_type: "product",
+        content_name: product.name,
+        quantity: product.quantity || 1,
+        price: product.price,
         value: product.price,
         currency: "MAD",
-        content_category: product.category || "General",
-      };
-
-      if (typeof window.fbq === "function") {
-        window.fbq("track", "ViewContent", fbData);
-      }
-
-      if (window.ttq && typeof window.ttq.track === "function") {
-        window.ttq.track("ViewContent", {
-          content_id: product.id,
-          content_type: "product",
-          content_name: product.name,
-          quantity: product.quantity || 1,
-          price: product.price,
-          value: product.price,
-          currency: "MAD",
-        });
-      }
-
-      if (process.env.NODE_ENV === "development") {
-        console.log("[Tracking] ViewContent sent:", fbData);
-      }
-    } catch (e) {
-      console.warn("[Tracking] Error sending ViewContent:", e);
+      });
     }
   });
 }
 
 /**
- * InitiateCheckout event (triggered when customer focuses on form or clicks jump button)
+ * AddToCart event (User switches bundle or clicks purchase CTA)
+ */
+export function trackAddToCart(product: TrackingProduct) {
+  safeRun(() => {
+    // 1. Meta Pixel
+    trackMetaAddToCart({
+      content_name: product.name,
+      content_ids: [product.id],
+      value: product.price * (product.quantity || 1),
+      currency: "MAD",
+      quantity: product.quantity || 1,
+    });
+
+    // 2. TikTok Pixel
+    if (window.ttq && typeof window.ttq.track === "function") {
+      window.ttq.track("AddToCart", {
+        content_id: product.id,
+        content_name: product.name,
+        value: product.price * (product.quantity || 1),
+        currency: "MAD",
+        quantity: product.quantity || 1,
+      });
+    }
+  });
+}
+
+/**
+ * InitiateCheckout event (User starts interacting with order form)
  */
 export function trackInitiateCheckout(product: TrackingProduct) {
-  safeDispatch(() => {
-    try {
-      const totalValue = product.price * (product.quantity || 1);
-      const fbData = {
+  safeRun(() => {
+    const totalValue = product.price * (product.quantity || 1);
+
+    // 1. Meta Pixel
+    trackMetaInitiateCheckout({
+      content_name: product.name,
+      content_ids: [product.id],
+      content_type: "product",
+      value: totalValue,
+      currency: "MAD",
+      num_items: product.quantity || 1,
+    });
+
+    // 2. TikTok Pixel
+    if (window.ttq && typeof window.ttq.track === "function") {
+      window.ttq.track("InitiateCheckout", {
+        content_id: product.id,
         content_name: product.name,
-        content_ids: [product.id],
-        content_type: "product",
         value: totalValue,
         currency: "MAD",
-        num_items: product.quantity || 1,
-      };
-
-      if (typeof window.fbq === "function") {
-        window.fbq("track", "InitiateCheckout", fbData);
-      }
-
-      if (window.ttq && typeof window.ttq.track === "function") {
-        window.ttq.track("InitiateCheckout", {
-          content_id: product.id,
-          content_name: product.name,
-          value: totalValue,
-          currency: "MAD",
-          quantity: product.quantity || 1,
-        });
-      }
-
-      if (process.env.NODE_ENV === "development") {
-        console.log("[Tracking] InitiateCheckout sent:", fbData);
-      }
-    } catch (e) {
-      console.warn("[Tracking] Error sending InitiateCheckout:", e);
+        quantity: product.quantity || 1,
+      });
     }
   });
 }
 
 /**
- * Purchase event (triggered on successful order submission)
+ * Purchase event (Cash on delivery order submitted successfully)
  */
 export function trackPurchase(data: PurchaseEventData) {
-  safeDispatch(() => {
-    try {
-      const currency = data.currency || "MAD";
-      const fbData = {
-        content_type: "product",
-        content_ids: data.items?.map((item) => item.id) || [],
+  safeRun(() => {
+    const currency = data.currency || "MAD";
+    const numItems = data.items?.reduce((acc, curr) => acc + curr.quantity, 0) || 1;
+    const contentIds = data.items?.map((item) => item.id) || [];
+    const contentName = data.items?.[0]?.name || "Pratiko Product";
+
+    // 1. Meta Pixel (with order_id deduplication)
+    const metaParams: MetaPurchaseParams = {
+      content_name: contentName,
+      content_ids: contentIds,
+      content_type: "product",
+      value: data.value,
+      currency: currency,
+      num_items: numItems,
+      order_id: data.orderId,
+    };
+    trackMetaPurchase(metaParams);
+
+    // 2. TikTok Pixel
+    if (window.ttq && typeof window.ttq.track === "function") {
+      window.ttq.track("CompletePayment", {
+        content_id: data.orderId,
         value: data.value,
         currency: currency,
-        order_id: data.orderId,
-        num_items: data.items?.reduce((acc, curr) => acc + curr.quantity, 0) || 1,
-      };
+        quantity: numItems,
+      });
+    }
+  });
+}
 
-      if (typeof window.fbq === "function") {
-        window.fbq("track", "Purchase", fbData);
-      }
+/**
+ * Contact event (User clicks WhatsApp button to order or inquire)
+ */
+export function trackWhatsAppClick(productName?: string, price?: number) {
+  safeRun(() => {
+    // 1. Meta Pixel Contact event
+    trackMetaContact({
+      content_name: productName ? `${productName} (WhatsApp)` : "WhatsApp Support",
+      value: price || 0,
+      currency: "MAD",
+      contact_method: "whatsapp",
+    });
 
-      if (window.ttq && typeof window.ttq.track === "function") {
-        window.ttq.track("CompletePayment", {
-          content_id: data.orderId,
-          value: data.value,
-          currency: currency,
-          quantity: fbData.num_items,
-        });
-      }
-
-      if (process.env.NODE_ENV === "development") {
-        console.log("[Tracking] Purchase sent:", fbData);
-      }
-    } catch (e) {
-      console.warn("[Tracking] Error sending Purchase:", e);
+    // 2. TikTok Pixel Contact event
+    if (window.ttq && typeof window.ttq.track === "function") {
+      window.ttq.track("Contact", {
+        content_name: productName || "WhatsApp Support",
+      });
     }
   });
 }

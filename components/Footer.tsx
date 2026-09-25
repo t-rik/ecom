@@ -6,6 +6,7 @@ import { ShieldCheck, PhoneCall } from "lucide-react";
 import Logo from "./Logo";
 import { useLanguage } from "@/context/LanguageContext";
 import { STORE_WHATSAPP_BASE_URL } from "@/lib/constants";
+import { trackWhatsAppClick } from "@/lib/tracking";
 
 export default function Footer() {
   const pathname = usePathname();
@@ -28,6 +29,7 @@ export default function Footer() {
               href={STORE_WHATSAPP_BASE_URL}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackWhatsAppClick()}
               className="flex items-center gap-1.5 text-green-400 hover:text-green-300 bg-gray-800/80 px-3 py-1.5 rounded-lg border border-gray-700 transition-colors"
             >
               <PhoneCall className="w-4 h-4" />

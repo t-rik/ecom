@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Product, CITIES_LIST, MoroccanCity } from "@/data/products";
 import { MOROCCAN_PHONE_REGEX, sanitizeMoroccanPhone } from "@/lib/validations";
-import { trackInitiateCheckout, trackPurchase } from "@/lib/tracking";
+import { trackInitiateCheckout, trackPurchase, trackAddToCart } from "@/lib/tracking";
 import { useLanguage } from "@/context/LanguageContext";
 import {
   User,
@@ -64,8 +64,16 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
   const handleBundleSelect = (bundleId: string) => {
     setSelectedBundleId(bundleId);
     const chosen = product.bundleOptions.find((b) => b.id === bundleId);
-    if (chosen && onBundleChange) {
-      onBundleChange(chosen.id, chosen.price + chosen.deliveryFee);
+    if (chosen) {
+      if (onBundleChange) {
+        onBundleChange(chosen.id, chosen.price + chosen.deliveryFee);
+      }
+      trackAddToCart({
+        id: product.id,
+        name: `${title} (${chosen.name})`,
+        price: chosen.price,
+        quantity: chosen.quantity,
+      });
     }
   };
 
