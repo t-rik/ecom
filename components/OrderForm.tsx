@@ -189,7 +189,7 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
     language === "fr" && currentBundle.nameFr ? currentBundle.nameFr : currentBundle.name;
 
   return (
-    <section id="order-form" className="w-full bg-slate-50 py-8 px-4 border-b border-gray-200">
+    <section id="order-form" className="w-full bg-slate-50 py-8 px-4 border-b border-gray-200 scroll-mt-4">
       <div className="max-w-xl mx-auto bg-white rounded-3xl p-5 sm:p-7 shadow-xl border border-gray-200/80">
         {/* Form Header */}
         <div className="text-center mb-6">

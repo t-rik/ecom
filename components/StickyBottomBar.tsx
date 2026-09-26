@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ShoppingBag, ArrowDown } from "lucide-react";
+import { ShoppingBag, ArrowDown, ArrowUp } from "lucide-react";
 import { trackInitiateCheckout, trackWhatsAppClick } from "@/lib/tracking";
 import { useLanguage } from "@/context/LanguageContext";
 import { getWhatsAppLink } from "@/lib/constants";
@@ -20,6 +20,7 @@ export default function StickyBottomBar({
 }: StickyBottomBarProps) {
   const { t, language } = useLanguage();
   const [isOrderCtaVisible, setIsOrderCtaVisible] = useState(true);
+  const [scrollDirection, setScrollDirection] = useState<"down" | "up">("down");
 
   useEffect(() => {
     const formElement = document.getElementById("order-form");
@@ -29,9 +30,24 @@ export default function StickyBottomBar({
 
     const updateVisibility = () => {
       const rect = formElement.getBoundingClientRect();
-      // Hide order CTA button once the form reaches the middle of the viewport
-      const isAtOrPastForm = rect.top <= window.innerHeight * 0.5;
-      setIsOrderCtaVisible(!isAtOrPastForm);
+      const windowHeight = window.innerHeight;
+
+      // 1. Above the form: top of the form is below the middle of viewport
+      const isAboveForm = rect.top > windowHeight * 0.45;
+
+      // 2. Below the form: bottom of the form has scrolled past the upper viewport
+      const isBelowForm = rect.bottom < windowHeight * 0.2;
+
+      // 3. User is actively viewing / filling the form
+      const isInsideForm = !isAboveForm && !isBelowForm;
+
+      if (isInsideForm) {
+        setIsOrderCtaVisible(false);
+      } else {
+        setIsOrderCtaVisible(true);
+        setScrollDirection(isBelowForm ? "up" : "down");
+      }
+
       ticking = false;
     };
 
@@ -64,7 +80,7 @@ export default function StickyBottomBar({
 
     const formElement = document.getElementById("order-form");
     if (formElement) {
-      formElement.scrollIntoView({ behavior: "smooth" });
+      formElement.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
@@ -80,7 +96,7 @@ export default function StickyBottomBar({
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 px-3.5 py-3 pointer-events-none md:hidden">
+    <div className="fixed bottom-0 left-0 right-0 z-40 px-3.5 py-3 pointer-events-none">
       <div className="max-w-md mx-auto flex items-center gap-2" dir="ltr">
         {/* WhatsApp Button (Permanent on Bottom Left) */}
         <a
@@ -102,7 +118,7 @@ export default function StickyBottomBar({
           <span className="whitespace-nowrap">{t("sticky_whatsapp")}</span>
         </a>
 
-        {/* Main Order CTA Button on the right (fades out smoothly when on form) */}
+        {/* Main Order CTA Button on the right (fades out smoothly when on form, points up when below form) */}
         <div
           className={`flex-1 transition-all duration-300 ease-in-out ${
             isOrderCtaVisible
@@ -115,9 +131,13 @@ export default function StickyBottomBar({
             onClick={handleScrollToForm}
             className="w-full bg-[#00a650] hover:bg-[#008f45] text-white font-black py-3.5 px-3 rounded-2xl shadow-xl shadow-green-600/30 flex items-center justify-center gap-2 active:scale-[0.98] transition-all text-sm sm:text-base cursor-pointer border border-green-500/30"
           >
-            <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 animate-bounce shrink-0" />
+            <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
             <span className="whitespace-nowrap">{t("sticky_cta")}</span>
-            <ArrowDown className="w-4 h-4 shrink-0" />
+            {scrollDirection === "up" ? (
+              <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 animate-bounce" />
+            ) : (
+              <ArrowDown className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 animate-bounce" />
+            )}
           </button>
         </div>
       </div>
