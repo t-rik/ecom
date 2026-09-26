@@ -192,12 +192,32 @@ export function trackPurchase(data: PurchaseEventData) {
 
     // 2. TikTok Pixel
     if (window.ttq && typeof window.ttq.track === "function") {
-      window.ttq.track("CompletePayment", {
-        content_id: data.orderId,
-        value: data.value,
-        currency: currency,
-        quantity: numItems,
-      });
+      window.ttq.track(
+        "CompletePayment",
+        {
+          content_id: data.orderId,
+          content_name: contentName,
+          value: data.value,
+          currency: currency,
+          quantity: numItems,
+        },
+        {
+          event_id: data.orderId,
+        }
+      );
+      window.ttq.track(
+        "PlaceAnOrder",
+        {
+          content_id: data.orderId,
+          content_name: contentName,
+          value: data.value,
+          currency: currency,
+          quantity: numItems,
+        },
+        {
+          event_id: `pao_${data.orderId}`,
+        }
+      );
     }
   });
 }
