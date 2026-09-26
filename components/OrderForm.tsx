@@ -200,6 +200,7 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
       if (response.ok && data.success) {
         if (typeof window !== "undefined") {
           sessionStorage.setItem("valid_order_session", data.orderId);
+          sessionStorage.setItem("last_order_phone", cleanPhone);
         }
 
         router.push(

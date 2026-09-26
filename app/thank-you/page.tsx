@@ -57,10 +57,12 @@ function ThankYouContent() {
     // Deduplicated Meta Pixel & TikTok Purchase tracking
     const deduplicationKey = `pratiko_tracked_order_${orderId}`;
     if (typeof window !== "undefined" && !sessionStorage.getItem(deduplicationKey)) {
+      const storedPhone = sessionStorage.getItem("last_order_phone") || "";
       trackPurchase({
         orderId,
         value: Number(total) || 159,
         currency: "MAD",
+        phone: storedPhone,
         items: [
           {
             id: "aspirateur-sans-fil",
