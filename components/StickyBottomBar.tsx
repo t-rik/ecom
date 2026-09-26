@@ -27,6 +27,7 @@ export default function StickyBottomBar({
     if (!formElement) return;
 
     let ticking = false;
+    let isBelowFormState = false;
 
     const updateVisibility = () => {
       const rect = formElement.getBoundingClientRect();
@@ -35,17 +36,28 @@ export default function StickyBottomBar({
       // 1. Above the form: top of the form is below the middle of viewport
       const isAboveForm = rect.top > windowHeight * 0.45;
 
-      // 2. Below the form: bottom of the form has scrolled past the upper viewport
-      const isBelowForm = rect.bottom < windowHeight * 0.2;
-
-      // 3. User is actively viewing / filling the form
-      const isInsideForm = !isAboveForm && !isBelowForm;
-
-      if (isInsideForm) {
-        setIsOrderCtaVisible(false);
+      // 2. Below the form with hysteresis:
+      // When scrolling up from below, keep the button visible until the form occupies at least 70% of the viewport (submit button centered).
+      // When scrolling down past the form, reveal the button once the form has mostly left the screen (upper 25%).
+      if (isBelowFormState) {
+        if (rect.bottom >= windowHeight * 0.7 || isAboveForm) {
+          isBelowFormState = false;
+        }
       } else {
+        if (rect.bottom < windowHeight * 0.25 && !isAboveForm) {
+          isBelowFormState = true;
+        }
+      }
+
+      if (isAboveForm) {
         setIsOrderCtaVisible(true);
-        setScrollDirection(isBelowForm ? "up" : "down");
+        setScrollDirection("down");
+      } else if (isBelowFormState) {
+        setIsOrderCtaVisible(true);
+        setScrollDirection("up");
+      } else {
+        // User is viewing / filling the form: fade out sticky button
+        setIsOrderCtaVisible(false);
       }
 
       ticking = false;
