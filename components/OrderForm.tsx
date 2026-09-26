@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Product, CITIES_LIST, MoroccanCity, CITY_ARABIC_NAMES } from "@/data/products";
-import { TOP_CITIES, findBestCityMatch, searchCities } from "@/lib/city-matcher";
+import { Product, MoroccanCity, CITY_ARABIC_NAMES } from "@/data/products";
+import { findBestCityMatch, searchCities } from "@/lib/city-matcher";
 import { MOROCCAN_PHONE_REGEX, sanitizeMoroccanPhone } from "@/lib/validations";
 import { trackInitiateCheckout, trackPurchase, trackAddToCart } from "@/lib/tracking";
 import { useLanguage } from "@/context/LanguageContext";
@@ -38,8 +38,8 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
   const [selectedBundleId, setSelectedBundleId] = useState<string>(defaultBundle.id);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
-  const [city, setCity] = useState<string>("Casablanca");
-  const [citySearchInput, setCitySearchInput] = useState<string>("Casablanca (الدار البيضاء)");
+  const [city, setCity] = useState<string>("");
+  const [citySearchInput, setCitySearchInput] = useState<string>("");
   const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false);
   const cityContainerRef = useRef<HTMLDivElement>(null);
   const [address, setAddress] = useState("");
@@ -390,48 +390,12 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
               )}
             </div>
 
-            {/* City Selection: Quick-Tap Pills + Smart Search */}
+            {/* City Selection: Smart Search Combobox */}
             <div>
               <label htmlFor="city" className="block text-xs font-bold text-gray-700 mb-1.5">
                 {t("city_label")} <span className="text-red-500">*</span>
               </label>
 
-              {/* Top 6 Quick-Tap Pills for 80% of Moroccan buyers */}
-              <div className="mb-2.5">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[11px] font-semibold text-gray-500">
-                    {language === "fr" ? "Villes fréquentes (1 clic) :" : "المدن الأكثر طلباً (نقرة واحدة) :"}
-                  </span>
-                  {city && (
-                    <span className="text-[11px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded-full border border-green-200">
-                      ✓ {city}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-wrap gap-1.5" dir={dir}>
-                  {TOP_CITIES.map((c) => {
-                    const isSelected = city === c;
-                    const arName = CITY_ARABIC_NAMES[c] || c;
-                    return (
-                      <button
-                        key={c}
-                        type="button"
-                        onClick={() => handleSelectCity(c, arName)}
-                        className={`text-xs font-bold py-1.5 px-3 rounded-xl border transition-all flex items-center gap-1 cursor-pointer active:scale-95 ${
-                          isSelected
-                            ? "bg-green-600 border-green-600 text-white shadow-xs scale-[1.02]"
-                            : "bg-gray-100 hover:bg-gray-200 border-gray-200 text-gray-700"
-                        }`}
-                      >
-                        {isSelected && <Check className="w-3.5 h-3.5 shrink-0" />}
-                        <span>{language === "fr" ? c : arName}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Smart Search Combobox */}
               <div className="relative" ref={cityContainerRef}>
                 <div className="relative">
                   <input
@@ -439,19 +403,18 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
                     type="text"
                     autoComplete="off"
                     value={citySearchInput}
-                    onFocus={() => setIsCityDropdownOpen(true)}
                     onChange={(e) => {
                       const val = e.target.value;
                       setCitySearchInput(val);
                       setCity(val);
-                      setIsCityDropdownOpen(true);
+                      setIsCityDropdownOpen(val.trim().length > 0);
                       if (errors.city) setErrors((prev) => ({ ...prev, city: "" }));
                     }}
                     onBlur={handleCityInputBlur}
                     placeholder={
                       language === "fr"
-                        ? "Rechercher ou écrire votre ville..."
-                        : "ابحث عن مدينتك أو اكتبها (مثال: كازا، مراكش، وجدة...)"
+                        ? "Tapez votre ville (ex: Casa, Rabat, Fès...)"
+                        : "اكتب اسم مدينتك (مثال: كازا، مراكش، وجدة...)"
                     }
                     className="w-full py-3.5 px-10 rounded-xl border border-gray-300 bg-white text-sm font-medium focus:border-green-600 focus:ring-2 focus:ring-green-600/10 outline-hidden"
                   />
@@ -466,7 +429,7 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
                       onClick={() => {
                         setCitySearchInput("");
                         setCity("");
-                        setIsCityDropdownOpen(true);
+                        setIsCityDropdownOpen(false);
                       }}
                       className={`absolute top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 text-xs font-bold cursor-pointer ${
                         dir === "rtl" ? "left-3" : "right-3"
@@ -478,8 +441,8 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
                   )}
                 </div>
 
-                {/* Filtered Dropdown Results */}
-                {isCityDropdownOpen && (
+                {/* Filtered Dropdown Results: ONLY shown when client starts typing */}
+                {isCityDropdownOpen && citySearchInput.trim().length > 0 && (
                   <div className="absolute z-50 mt-1 w-full bg-white rounded-2xl shadow-xl border border-gray-200 max-h-56 overflow-y-auto divide-y divide-gray-100">
                     {searchCities(citySearchInput).length > 0 ? (
                       searchCities(citySearchInput).map(({ city: c, arabicName }) => {
@@ -506,7 +469,7 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
                     ) : (
                       <div className="p-3 text-xs text-gray-500 text-center">
                         {language === "fr"
-                          ? `Appuyez pour confirmer "${citySearchInput}"`
+                          ? `Appuyez en dehors pour valider "${citySearchInput}"`
                           : `انقر لتأكيد "${citySearchInput}"`}
                       </div>
                     )}
