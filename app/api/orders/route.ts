@@ -3,6 +3,7 @@ import { OrderSchema, OrderResponse } from "@/lib/validations";
 import { dispatchOrder } from "@/lib/webhooks";
 import { createOrder } from "@/lib/orders-db";
 import { sendMetaServerPurchase } from "@/lib/meta-conversions-api";
+import { sendTikTokServerPurchase } from "@/lib/tiktok-events-api";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -77,6 +78,29 @@ export async function POST(req: NextRequest) {
       clientUserAgent,
       sourceUrl: referer,
     }).catch((capiErr) => console.error("[Orders API] Meta CAPI background error:", capiErr));
+
+    // TikTok Events API - Server-to-Server tracking (100% iOS 14.5+ & ad-blocker immune)
+    const ttclid =
+      req.cookies.get("ttclid")?.value ||
+      new URL(req.url).searchParams.get("ttclid") ||
+      undefined;
+    const ttp = req.cookies.get("_ttp")?.value || undefined;
+
+    sendTikTokServerPurchase({
+      orderId,
+      fullName: orderData.fullName,
+      phone: orderData.phone,
+      city: orderData.city,
+      totalPrice: orderData.totalPrice,
+      productId: orderData.productId,
+      productTitle: orderData.productTitle || orderData.productId,
+      quantity: orderData.quantity,
+      clientIp,
+      clientUserAgent,
+      sourceUrl: referer,
+      ttclid,
+      ttp,
+    }).catch((ttErr) => console.error("[Orders API] TikTok Events API background error:", ttErr));
 
     return NextResponse.json<OrderResponse>(
       {
