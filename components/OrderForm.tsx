@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Product, CITIES_LIST, MoroccanCity, CITY_ARABIC_NAMES } from "@/data/products";
+import { TOP_CITIES, findBestCityMatch, searchCities } from "@/lib/city-matcher";
 import { MOROCCAN_PHONE_REGEX, sanitizeMoroccanPhone } from "@/lib/validations";
 import { trackInitiateCheckout, trackPurchase, trackAddToCart } from "@/lib/tracking";
 import { useLanguage } from "@/context/LanguageContext";
@@ -16,6 +17,7 @@ import {
   Loader2,
   Sparkles,
   AlertCircle,
+  Check,
 } from "lucide-react";
 
 interface OrderFormProps {
@@ -36,12 +38,59 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
   const [selectedBundleId, setSelectedBundleId] = useState<string>(defaultBundle.id);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
-  const [city, setCity] = useState<MoroccanCity>("Casablanca");
+  const [city, setCity] = useState<string>("Casablanca");
+  const [citySearchInput, setCitySearchInput] = useState<string>("Casablanca (الدار البيضاء)");
+  const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false);
+  const cityContainerRef = useRef<HTMLDivElement>(null);
   const [address, setAddress] = useState("");
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        cityContainerRef.current &&
+        !cityContainerRef.current.contains(event.target as Node)
+      ) {
+        setIsCityDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleSelectCity = (selectedCity: string, arabicName?: string) => {
+    setCity(selectedCity);
+    const ar = arabicName || CITY_ARABIC_NAMES[selectedCity as MoroccanCity] || "";
+    setCitySearchInput(ar && selectedCity !== ar ? `${selectedCity} (${ar})` : selectedCity);
+    setIsCityDropdownOpen(false);
+    if (errors.city) setErrors((prev) => ({ ...prev, city: "" }));
+  };
+
+  const handleCityInputBlur = () => {
+    setTimeout(() => {
+      setIsCityDropdownOpen(false);
+      const raw = citySearchInput.trim();
+      if (!raw) return;
+
+      const match = findBestCityMatch(raw);
+      if (match && match.score >= 0.40) {
+        setCity(match.city);
+        const ar = match.arabicName;
+        setCitySearchInput(ar && match.city !== ar ? `${match.city} (${ar})` : match.city);
+        if (errors.city) setErrors((prev) => ({ ...prev, city: "" }));
+      } else {
+        // Keep their custom typed text as their city
+        setCity(raw);
+        setCitySearchInput(raw);
+        if (errors.city) setErrors((prev) => ({ ...prev, city: "" }));
+      }
+    }, 180);
+  };
 
   const currentBundle =
     product.bundleOptions.find((b) => b.id === selectedBundleId) || defaultBundle;
@@ -341,35 +390,128 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
               )}
             </div>
 
-            {/* City Select */}
+            {/* City Selection: Quick-Tap Pills + Smart Search */}
             <div>
-              <label htmlFor="city" className="block text-xs font-bold text-gray-700 mb-1">
+              <label htmlFor="city" className="block text-xs font-bold text-gray-700 mb-1.5">
                 {t("city_label")} <span className="text-red-500">*</span>
               </label>
-              <div className="relative">
-                <select
-                  id="city"
-                  value={city}
-                  onChange={(e) => {
-                    setCity(e.target.value as MoroccanCity);
-                    if (errors.city) setErrors({ ...errors, city: "" });
-                  }}
-                  className="w-full py-3.5 px-10 rounded-xl border border-gray-300 bg-white text-sm font-medium focus:border-green-600 focus:ring-2 focus:ring-green-600/10 outline-hidden appearance-none cursor-pointer"
-                >
-                  {CITIES_LIST.map((c) => {
-                    const ar = CITY_ARABIC_NAMES[c];
+
+              {/* Top 6 Quick-Tap Pills for 80% of Moroccan buyers */}
+              <div className="mb-2.5">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[11px] font-semibold text-gray-500">
+                    {language === "fr" ? "Villes fréquentes (1 clic) :" : "المدن الأكثر طلباً (نقرة واحدة) :"}
+                  </span>
+                  {city && (
+                    <span className="text-[11px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded-full border border-green-200">
+                      ✓ {city}
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-1.5" dir={dir}>
+                  {TOP_CITIES.map((c) => {
+                    const isSelected = city === c;
+                    const arName = CITY_ARABIC_NAMES[c] || c;
                     return (
-                      <option key={c} value={c}>
-                        {c} {ar && c !== ar ? `(${ar})` : ""}
-                      </option>
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => handleSelectCity(c, arName)}
+                        className={`text-xs font-bold py-1.5 px-3 rounded-xl border transition-all flex items-center gap-1 cursor-pointer active:scale-95 ${
+                          isSelected
+                            ? "bg-green-600 border-green-600 text-white shadow-xs scale-[1.02]"
+                            : "bg-gray-100 hover:bg-gray-200 border-gray-200 text-gray-700"
+                        }`}
+                      >
+                        {isSelected && <Check className="w-3.5 h-3.5 shrink-0" />}
+                        <span>{language === "fr" ? c : arName}</span>
+                      </button>
                     );
                   })}
-                </select>
-                <MapPin
-                  className={`w-5 h-5 text-gray-400 absolute top-1/2 -translate-y-1/2 pointer-events-none ${
-                    dir === "rtl" ? "right-3" : "left-3"
-                  }`}
-                />
+                </div>
+              </div>
+
+              {/* Smart Search Combobox */}
+              <div className="relative" ref={cityContainerRef}>
+                <div className="relative">
+                  <input
+                    id="city"
+                    type="text"
+                    autoComplete="off"
+                    value={citySearchInput}
+                    onFocus={() => setIsCityDropdownOpen(true)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setCitySearchInput(val);
+                      setCity(val);
+                      setIsCityDropdownOpen(true);
+                      if (errors.city) setErrors((prev) => ({ ...prev, city: "" }));
+                    }}
+                    onBlur={handleCityInputBlur}
+                    placeholder={
+                      language === "fr"
+                        ? "Rechercher ou écrire votre ville..."
+                        : "ابحث عن مدينتك أو اكتبها (مثال: كازا، مراكش، وجدة...)"
+                    }
+                    className="w-full py-3.5 px-10 rounded-xl border border-gray-300 bg-white text-sm font-medium focus:border-green-600 focus:ring-2 focus:ring-green-600/10 outline-hidden"
+                  />
+                  <MapPin
+                    className={`w-5 h-5 text-gray-400 absolute top-1/2 -translate-y-1/2 pointer-events-none ${
+                      dir === "rtl" ? "right-3" : "left-3"
+                    }`}
+                  />
+                  {citySearchInput && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCitySearchInput("");
+                        setCity("");
+                        setIsCityDropdownOpen(true);
+                      }}
+                      className={`absolute top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 text-xs font-bold cursor-pointer ${
+                        dir === "rtl" ? "left-3" : "right-3"
+                      }`}
+                      aria-label="Clear city"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                {/* Filtered Dropdown Results */}
+                {isCityDropdownOpen && (
+                  <div className="absolute z-50 mt-1 w-full bg-white rounded-2xl shadow-xl border border-gray-200 max-h-56 overflow-y-auto divide-y divide-gray-100">
+                    {searchCities(citySearchInput).length > 0 ? (
+                      searchCities(citySearchInput).map(({ city: c, arabicName }) => {
+                        const isSelected = city === c;
+                        return (
+                          <button
+                            key={c}
+                            type="button"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              handleSelectCity(c, arabicName);
+                            }}
+                            className={`w-full text-right px-4 py-2.5 text-sm flex items-center justify-between hover:bg-green-50 transition-colors cursor-pointer ${
+                              isSelected ? "bg-green-50 text-green-700 font-bold" : "text-gray-700"
+                            }`}
+                          >
+                            <span className="font-semibold text-gray-900">
+                              {c} <span className="text-gray-500 font-normal">({arabicName})</span>
+                            </span>
+                            {isSelected && <Check className="w-4 h-4 text-green-600 shrink-0" />}
+                          </button>
+                        );
+                      })
+                    ) : (
+                      <div className="p-3 text-xs text-gray-500 text-center">
+                        {language === "fr"
+                          ? `Appuyez pour confirmer "${citySearchInput}"`
+                          : `انقر لتأكيد "${citySearchInput}"`}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
               {errors.city && (
                 <p className="text-xs text-red-600 font-medium mt-1">{errors.city}</p>

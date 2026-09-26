@@ -33,9 +33,9 @@ export const OrderSchema = z.object({
       message: "يرجى إدخال رقم هاتف مغربي صحيح يبدأ بـ 06 أو 07 (مثال: 0612345678)",
     }),
   city: z
-    .enum(CITIES_LIST, {
-      errorMap: () => ({ message: "المرجو اختيار المدينة من القائمة" }),
-    }),
+    .string()
+    .min(2, { message: "المرجو اختيار أو إدخال اسم المدينة" })
+    .max(80, { message: "اسم المدينة طويل جداً" }),
   address: z
     .string()
     .min(3, { message: "المرجو إدخال العنوان (3 أحرف على الأقل)" })
