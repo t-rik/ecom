@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Product, CITIES_LIST, MoroccanCity } from "@/data/products";
+import { Product, CITIES_LIST, MoroccanCity, CITY_ARABIC_NAMES } from "@/data/products";
 import { MOROCCAN_PHONE_REGEX, sanitizeMoroccanPhone } from "@/lib/validations";
 import { trackInitiateCheckout, trackPurchase, trackAddToCart } from "@/lib/tracking";
 import { useLanguage } from "@/context/LanguageContext";
@@ -356,11 +356,14 @@ export default function OrderForm({ product, onBundleChange }: OrderFormProps) {
                   }}
                   className="w-full py-3.5 px-10 rounded-xl border border-gray-300 bg-white text-sm font-medium focus:border-green-600 focus:ring-2 focus:ring-green-600/10 outline-hidden appearance-none cursor-pointer"
                 >
-                  {CITIES_LIST.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
+                  {CITIES_LIST.map((c) => {
+                    const ar = CITY_ARABIC_NAMES[c];
+                    return (
+                      <option key={c} value={c}>
+                        {c} {ar && c !== ar ? `(${ar})` : ""}
+                      </option>
+                    );
+                  })}
                 </select>
                 <MapPin
                   className={`w-5 h-5 text-gray-400 absolute top-1/2 -translate-y-1/2 pointer-events-none ${

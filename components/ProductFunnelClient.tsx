@@ -53,19 +53,19 @@ export default function ProductFunnelClient({ product }: ProductFunnelClientProp
       {/* 2. Hero Section */}
       <HeroSection product={product} />
 
-      {/* 3. Visual Features Section */}
-      <BenefitCards product={product} />
-
-      {/* 4. Moroccan Trust Badges */}
-      <TrustBadges />
-
-      {/* FAQ Reassurance Section with bilingual support */}
-      <FAQSection faq={product.faq} faqFr={product.faqFr} />
-
-      {/* 5. The Embedded COD Checkout Form */}
+      {/* 3. The Embedded COD Checkout Form (Placed high for seamless mobile conversion) */}
       <OrderForm product={product} onBundleChange={handleBundleChange} />
 
-      {/* 5. Sticky Bottom Bar (Mobile only) */}
+      {/* 4. Visual Features Section */}
+      <BenefitCards product={product} />
+
+      {/* 5. Moroccan Trust Badges */}
+      <TrustBadges />
+
+      {/* 6. FAQ Reassurance Section with bilingual support */}
+      <FAQSection faq={product.faq} faqFr={product.faqFr} />
+
+      {/* Sticky Bottom Bar (Mobile only) */}
       <StickyBottomBar
         price={activePrice}
         productName={title}
